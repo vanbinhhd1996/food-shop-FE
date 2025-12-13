@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文履歴 - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="mb-4">
+                <h1><i class="fas fa-history"></i> 注文履歴</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/index.html">ホーム</a></li>
+                        <li class="breadcrumb-item active">注文履歴</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Orders List -->
+            <div id="ordersContainer">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">読み込み中...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav id="paginationContainer" class="mt-4"></nav>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let currentPage = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication
+            if (!Auth.requireAuth()) {
+                return;
+            }
+
+            loadOrders();
+        });
+
+        // Load orders
+        async function loadOrders() {
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.getOrders(userId, currentPage, 10);
+
+                if (response.success && response.data) {
+                    let orders, totalPages;
+                    
+                    if (Array.isArray(response.data)) {
+                        orders = response.data;
+                        totalPages = 1;
+                    } else {
+                        orders = response.data.content || [];
+                        totalPages = response.data.totalPages || 1;
+                    }
+
+                    displayOrders(orders);
+                    displayPagination(totalPages);
+                } else {
+                    displayEmptyOrders();
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                displayEmptyOrders();
+            }
+        }
+
+        // Display orders
+        function displayOrders(orders) {
+            const container = document.getElementById('ordersContainer');
+
+            if (!orders || orders.length === 0) {
+                displayEmptyOrders();
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <div class="order-card mb-3">
+                    <!-- Order Header -->
+                    <div class="order-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <div class="order-number">
+                                    <i class="fas fa-receipt"></i> ${order.orderNumber}
+                                </div>
+                                <small class="text-muted">${Utils.formatDateTime(order.createdAt)}</small>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="badge ${Utils.getOrderStatusBadge(order.status)} fs-6">
+                                    ${Utils.getOrderStatusText(order.status)}
+                                </span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>合計: ${Utils.formatPrice(order.finalAmount)}</strong>
+                            </div>
+                            <div class="col-md-3 text-md-end mt-2 mt-md-0">
+                                <a href="/order-detail.html?id=${order.id}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> 詳細を見る
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items Preview -->
+                    <div class="row g-2">
+                        ${order.orderItems ? order.orderItems.slice(0, 3).map(item => `
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <small class="fw-bold d-block">${item.productName}</small>
+                                        <small class="text-muted">
+                                            ${Utils.formatPrice(item.price)} × ${item.quantity}
+                                        </small>
+                                    </div>
+                                    <div class="text-end ms-2">
+                                        <small class="fw-bold">${Utils.formatPrice(item.subtotal)}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') : ''}
+                        ${order.orderItems && order.orderItems.length > 3 ? `
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    他 ${order.orderItems.length - 3}件の商品
+                                </small>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Display empty orders
+        function displayEmptyOrders() {
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = `
+                <div class="bg-white rounded shadow-sm p-5 text-center">
+                    <i class="fas fa-box-open fa-5x text-muted mb-4"></i>
+                    <h3 class="mb-3">注文履歴がありません</h3>
+                    <p class="text-muted mb-4">まだ商品を注文していません</p>
+                    <a href="/products.html" class="btn btn-primary">
+                        <i class="fas fa-shopping-bag"></i> 商品を見る
+                    </a>
+                </div>
+            `;
+        }
+
+        // Display pagination
+        function displayPagination(totalPages) {
+            const container = document.getElementById('paginationContainer');
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '<ul class="pagination justify-content-center">';
+            
+            // Previous
+            html += `
+                <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // Pages
+            for (let i = 0; i < totalPages; i++) {
+                if (i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 2) {
+                    html += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i + 1}</a>
+                        </li>
+                    `;
+                } else if (Math.abs(i - currentPage) === 3) {
+                    html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+
+            // Next
+            html += `
+                <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            loadOrders();
+            Utils.scrollToTop();
+        }
+    </script>
+</body>
+</html>

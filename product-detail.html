@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品詳細 - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/index.html">ホーム</a></li>
+                    <li class="breadcrumb-item"><a href="/products.html">商品一覧</a></li>
+                    <li class="breadcrumb-item active" id="breadcrumbProduct">...</li>
+                </ol>
+            </nav>
+
+            <!-- Product Detail -->
+            <div id="productDetail">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">読み込み中...</p>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div id="reviewsSection" class="mt-5 d-none">
+                <h3 class="mb-4"><i class="fas fa-star"></i> レビュー</h3>
+                
+                <!-- Add Review (for logged-in users) -->
+                <div id="addReviewSection" class="mb-4"></div>
+
+                <!-- Reviews List -->
+                <div id="reviewsList"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let currentProduct = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const productId = Utils.getQueryParam('id');
+            
+            if (!productId) {
+                window.location.href = '/products.html';
+                return;
+            }
+
+            loadProductDetail(productId);
+            loadReviews(productId);
+        });
+
+        // Load product detail
+        async function loadProductDetail(productId) {
+            try {
+                const response = await API.getProductById(productId);
+                
+                if (response.success && response.data) {
+                    currentProduct = response.data;
+                    displayProductDetail(currentProduct);
+                } else {
+                    document.getElementById('productDetail').innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
+                            <p class="text-danger">商品が見つかりません</p>
+                            <a href="/products.html" class="btn btn-primary">商品一覧に戻る</a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                Utils.handleApiError(error);
+            }
+        }
+
+        // Display product detail
+        function displayProductDetail(product) {
+            document.getElementById('breadcrumbProduct').textContent = product.name;
+            document.title = `${product.name} - Makase-supa`;
+
+            const container = document.getElementById('productDetail');
+            container.innerHTML = `
+                <div class="row">
+                    <!-- Product Image -->
+                    <div class="col-md-6 mb-4">
+                        <div class="bg-white p-3 rounded shadow-sm">
+                            <img src="${Utils.getImageUrl(product.imageUrl)}" 
+                                 alt="${product.name}" 
+                                 class="img-fluid rounded"
+                                 onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="col-md-6">
+                        <div class="bg-white p-4 rounded shadow-sm">
+                            <h1 class="h2 mb-3">${product.name}</h1>
+
+                            <!-- Rating -->
+                            ${product.averageRating ? `
+                                <div class="mb-3">
+                                    ${Utils.generateStarRating(product.averageRating)}
+                                    <span class="ms-2">
+                                        <strong>${product.averageRating.toFixed(1)}</strong>
+                                        <span class="text-muted">(${product.reviewCount || 0}件のレビュー)</span>
+                                    </span>
+                                </div>
+                            ` : ''}
+
+                            <!-- Price -->
+                            <div class="mb-3">
+                                <h2 class="text-primary mb-0">${Utils.formatPrice(product.price)}</h2>
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="mb-3">
+                                ${product.stockQuantity > 0 
+                                    ? `<span class="badge bg-success fs-6">
+                                        <i class="fas fa-check-circle"></i> 在庫あり (${product.stockQuantity}個)
+                                       </span>`
+                                    : `<span class="badge bg-danger fs-6">
+                                        <i class="fas fa-times-circle"></i> 在庫切れ
+                                       </span>`
+                                }
+                            </div>
+
+                            <!-- Category -->
+                            ${product.categoryName ? `
+                                <div class="mb-3">
+                                    <strong>カテゴリー:</strong> 
+                                    <a href="/products.html?categoryId=${product.categoryId}" class="text-primary">
+                                        ${product.categoryName}
+                                    </a>
+                                </div>
+                            ` : ''}
+
+                            <!-- SKU -->
+                            ${product.sku ? `
+                                <div class="mb-3">
+                                    <strong>商品コード:</strong> <span class="text-muted">${product.sku}</span>
+                                </div>
+                            ` : ''}
+
+                            <!-- Description -->
+                            ${product.description ? `
+                                <div class="mb-4">
+                                    <h5>商品説明</h5>
+                                    <p class="text-muted">${product.description}</p>
+                                </div>
+                            ` : ''}
+
+                            <!-- Quantity Selector -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>数量:</strong></label>
+                                <div class="input-group" style="max-width: 150px;">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="changeQuantity(-1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="${product.stockQuantity}">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="changeQuantity(1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Add to Cart Button -->
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary btn-lg" onclick="addToCart()" ${product.stockQuantity === 0 ? 'disabled' : ''}>
+                                    <i class="fas fa-cart-plus"></i> カートに追加
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Change quantity
+        function changeQuantity(delta) {
+            const input = document.getElementById('quantity');
+            const newValue = parseInt(input.value) + delta;
+            const max = parseInt(input.max);
+            
+            if (newValue >= 1 && newValue <= max) {
+                input.value = newValue;
+            }
+        }
+
+        // Add to cart
+        async function addToCart() {
+            if (!Auth.isAuthenticated()) {
+                Utils.showAlert('ログインしてください', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 1500);
+                return;
+            }
+
+            const quantity = parseInt(document.getElementById('quantity').value);
+            
+            if (quantity < 1 || quantity > currentProduct.stockQuantity) {
+                Utils.showAlert('数量を確認してください', 'warning');
+                return;
+            }
+
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.addToCart(userId, currentProduct.id, quantity);
+                
+                if (response.success) {
+                    Utils.showAlert(`${currentProduct.name} を ${quantity}個カートに追加しました`, 'success');
+                    
+                    if (response.data && response.data.totalItems) {
+                        Utils.updateCartCount(response.data.totalItems);
+                    } else {
+                        Header.updateCartCount();
+                    }
+
+                    // Reset quantity
+                    document.getElementById('quantity').value = 1;
+                } else {
+                    Utils.showAlert(response.message || 'カートへの追加に失敗しました', 'danger');
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                Utils.handleApiError(error);
+            }
+        }
+
+        // Load reviews
+        async function loadReviews(productId) {
+            try {
+                const response = await API.getProductReviews(productId);
+                
+                if (response.success && response.data) {
+                    const reviews = Array.isArray(response.data) ? response.data : response.data.content || [];
+                    displayReviews(reviews);
+                    
+                    if (Auth.isAuthenticated()) {
+                        displayAddReviewForm();
+                    }
+                    
+                    document.getElementById('reviewsSection').classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+            }
+        }
+
+        // Display reviews
+        function displayReviews(reviews) {
+            const container = document.getElementById('reviewsList');
+            
+            if (!reviews || reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                        <p>まだレビューがありません</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = reviews.map(review => `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                ${Utils.generateStarRating(review.rating)}
+                                <strong class="ms-2">${review.userFullName || '匿名'}</strong>
+                            </div>
+                            <small class="text-muted">${Utils.formatDate(review.createdAt)}</small>
+                        </div>
+                        ${review.comment ? `<p class="mb-0">${review.comment}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Display add review form
+        function displayAddReviewForm() {
+            const container = document.getElementById('addReviewSection');
+            container.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">レビューを書く</h5>
+                        <form id="reviewForm">
+                            <div class="mb-3">
+                                <label class="form-label">評価</label>
+                                <div class="rating-input">
+                                    ${[5, 4, 3, 2, 1].map(star => `
+                                        <input type="radio" name="rating" value="${star}" id="star${star}" required>
+                                        <label for="star${star}">
+                                            <i class="fas fa-star"></i>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">コメント</label>
+                                <textarea class="form-control" id="reviewComment" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> レビューを投稿
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            // Add rating input style
+            const style = document.createElement('style');
+            style.textContent = `
+                .rating-input { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
+                .rating-input input { display: none; }
+                .rating-input label { cursor: pointer; color: #ddd; font-size: 1.5rem; }
+                .rating-input label:hover, .rating-input label:hover ~ label, 
+                .rating-input input:checked ~ label { color: #ffc107; }
+            `;
+            document.head.appendChild(style);
+
+            // Handle form submit
+            document.getElementById('reviewForm').addEventListener('submit', submitReview);
+        }
+
+        // Submit review
+        async function submitReview(e) {
+            e.preventDefault();
+
+            const rating = document.querySelector('input[name="rating"]:checked').value;
+            const comment = document.getElementById('reviewComment').value.trim();
+
+            if (!rating || !comment) {
+                Utils.showAlert('評価とコメントを入力してください', 'warning');
+                return;
+            }
+
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.createReview(userId, {
+                    productId: currentProduct.id,
+                    rating: parseInt(rating),
+                    comment: comment
+                });
+
+                if (response.success) {
+                    Utils.showAlert('レビューを投稿しました', 'success');
+                    
+                    // Reload reviews
+                    loadReviews(currentProduct.id);
+                    
+                    // Reset form
+                    document.getElementById('reviewForm').reset();
+                } else {
+                    Utils.showAlert(response.message || 'レビューの投稿に失敗しました', 'danger');
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                Utils.handleApiError(error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新規登録 - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="form-container">
+                        <!-- Title -->
+                        <h2 class="form-title">
+                            <i class="fas fa-user-plus"></i> 新規登録
+                        </h2>
+
+                        <!-- Register Form -->
+                        <form id="registerForm">
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user"></i> ユーザー名 <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="username" 
+                                    name="username"
+                                    placeholder="半角英数字6文字以上"
+                                    required
+                                    minlength="3"
+                                    autocomplete="username"
+                                >
+                                <small class="text-muted">半角英数字のみ使用可能</small>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope"></i> メールアドレス <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="email" 
+                                    class="form-control" 
+                                    id="email" 
+                                    name="email"
+                                    placeholder="example@email.com"
+                                    required
+                                    autocomplete="email"
+                                >
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock"></i> パスワード <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input 
+                                        type="password" 
+                                        class="form-control" 
+                                        id="password" 
+                                        name="password"
+                                        placeholder="6文字以上"
+                                        required
+                                        minlength="6"
+                                        autocomplete="new-password"
+                                    >
+                                    <button 
+                                        class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="togglePassword"
+                                    >
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">6文字以上で入力してください</small>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">
+                                    <i class="fas fa-lock"></i> パスワード（確認） <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="password" 
+                                    class="form-control" 
+                                    id="confirmPassword" 
+                                    name="confirmPassword"
+                                    placeholder="パスワードを再入力"
+                                    required
+                                    minlength="6"
+                                    autocomplete="new-password"
+                                >
+                            </div>
+
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label for="fullName" class="form-label">
+                                    <i class="fas fa-id-card"></i> 氏名 <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="fullName" 
+                                    name="fullName"
+                                    placeholder="山田 太郎"
+                                    required
+                                    autocomplete="name"
+                                >
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">
+                                    <i class="fas fa-phone"></i> 電話番号 <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="tel" 
+                                    class="form-control" 
+                                    id="phone" 
+                                    name="phone"
+                                    placeholder="090-1234-5678"
+                                    required
+                                    autocomplete="tel"
+                                >
+                            </div>
+
+                            <!-- Address -->
+                            <div class="mb-3">
+                                <label for="address" class="form-label">
+                                    <i class="fas fa-map-marker-alt"></i> 住所 <span class="text-danger">*</span>
+                                </label>
+                                <textarea 
+                                    class="form-control" 
+                                    id="address" 
+                                    name="address"
+                                    rows="2"
+                                    placeholder="東京都渋谷区道玄坂1-2-3"
+                                    required
+                                    autocomplete="street-address"
+                                ></textarea>
+                            </div>
+
+                            <!-- Terms Agreement -->
+                            <div class="mb-3 form-check">
+                                <input 
+                                    type="checkbox" 
+                                    class="form-check-input" 
+                                    id="agreeTerms"
+                                    required
+                                >
+                                <label class="form-check-label" for="agreeTerms">
+                                    <a href="#" class="text-primary">利用規約</a>と
+                                    <a href="#" class="text-primary">プライバシーポリシー</a>
+                                    に同意します <span class="text-danger">*</span>
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary w-100 mb-3"
+                                id="registerBtn"
+                            >
+                                <i class="fas fa-user-plus"></i> 登録する
+                            </button>
+
+                            <!-- Divider -->
+                            <div class="text-center mb-3">
+                                <span class="text-muted">または</span>
+                            </div>
+
+                            <!-- Login Link -->
+                            <div class="text-center">
+                                <p class="mb-0">
+                                    すでにアカウントをお持ちですか？
+                                    <a href="/login.html" class="text-primary fw-bold">
+                                        ログイン
+                                    </a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // Redirect if already logged in
+        Auth.redirectIfAuthenticated();
+
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Handle form submit
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Get form values
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            const registerBtn = document.getElementById('registerBtn');
+
+            // Validation
+            if (!username || !email || !password || !fullName || !phone || !address) {
+                Utils.showAlert('すべての必須項目を入力してください', 'warning');
+                return;
+            }
+
+            if (!Utils.validateEmail(email)) {
+                Utils.showAlert('有効なメールアドレスを入力してください', 'warning');
+                return;
+            }
+
+            if (password.length < 6) {
+                Utils.showAlert('パスワードは6文字以上で入力してください', 'warning');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                Utils.showAlert('パスワードが一致しません', 'warning');
+                return;
+            }
+
+            if (!agreeTerms) {
+                Utils.showAlert('利用規約に同意してください', 'warning');
+                return;
+            }
+
+            // Disable button
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 登録中...';
+
+            try {
+                // Call register API
+                const response = await API.register({
+                    username: username,
+                    email: email,
+                    password: password,
+                    fullName: fullName,
+                    phone: phone,
+                    address: address
+                });
+
+                if (response.success && response.data) {
+                    // Show success message
+                    Utils.showAlert('登録に成功しました！ログインページに移動します...', 'success');
+
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                } else {
+                    Utils.showAlert(response.message || '登録に失敗しました', 'danger');
+                    registerBtn.disabled = false;
+                    registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> 登録する';
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                Utils.handleApiError(error);
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> 登録する';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロフィール - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="mb-4">
+                <h1><i class="fas fa-user-circle"></i> プロフィール</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/index.html">ホーム</a></li>
+                        <li class="breadcrumb-item active">プロフィール</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <div class="row">
+                <!-- Sidebar Menu -->
+                <div class="col-lg-3 mb-4">
+                    <div class="bg-white rounded shadow-sm p-3">
+                        <div class="list-group list-group-flush">
+                            <a href="#profileInfo" class="list-group-item list-group-item-action active" 
+                               onclick="showSection('profileInfo'); return false;">
+                                <i class="fas fa-user"></i> アカウント情報
+                            </a>
+                            <a href="#changePassword" class="list-group-item list-group-item-action" 
+                               onclick="showSection('changePassword'); return false;">
+                                <i class="fas fa-lock"></i> パスワード変更
+                            </a>
+                            <a href="/orders.html" class="list-group-item list-group-item-action">
+                                <i class="fas fa-box"></i> 注文履歴
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action text-danger" 
+                               onclick="logout(); return false;">
+                                <i class="fas fa-sign-out-alt"></i> ログアウト
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="col-lg-9">
+                    <!-- Profile Info Section -->
+                    <div id="profileInfo" class="content-section">
+                        <div class="bg-white rounded shadow-sm p-4 mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4><i class="fas fa-user"></i> アカウント情報</h4>
+                                <button class="btn btn-primary" id="editBtn" onclick="toggleEditMode()">
+                                    <i class="fas fa-edit"></i> 編集
+                                </button>
+                            </div>
+
+                            <!-- Profile Display Mode -->
+                            <div id="displayMode">
+                                <div class="row mb-3">
+                                    <div class="col-md-3 fw-bold">ユーザー名:</div>
+                                    <div class="col-md-9" id="displayUsername">-</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-3 fw-bold">メールアドレス:</div>
+                                    <div class="col-md-9" id="displayEmail">-</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-3 fw-bold">氏名:</div>
+                                    <div class="col-md-9" id="displayFullName">-</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-3 fw-bold">電話番号:</div>
+                                    <div class="col-md-9" id="displayPhone">-</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-3 fw-bold">住所:</div>
+                                    <div class="col-md-9" id="displayAddress">-</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-3 fw-bold">会員種別:</div>
+                                    <div class="col-md-9">
+                                        <span class="badge bg-primary" id="displayRole">USER</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Profile Edit Mode -->
+                            <div id="editMode" class="d-none">
+                                <form id="profileForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">ユーザー名</label>
+                                        <input type="text" class="form-control" id="editUsername" disabled>
+                                        <small class="text-muted">ユーザー名は変更できません</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">メールアドレス <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="editEmail" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">氏名 <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="editFullName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">電話番号 <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="editPhone" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">住所 <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="editAddress" rows="3" required></textarea>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                                            <i class="fas fa-save"></i> 保存
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" onclick="toggleEditMode()">
+                                            <i class="fas fa-times"></i> キャンセル
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Account Stats -->
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="bg-white rounded shadow-sm p-4 text-center">
+                                    <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                                    <h3 id="totalOrders">0</h3>
+                                    <p class="text-muted mb-0">総注文数</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="bg-white rounded shadow-sm p-4 text-center">
+                                    <i class="fas fa-yen-sign fa-3x text-success mb-3"></i>
+                                    <h3 id="totalSpent">¥0</h3>
+                                    <p class="text-muted mb-0">総購入金額</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="bg-white rounded shadow-sm p-4 text-center">
+                                    <i class="fas fa-calendar-alt fa-3x text-warning mb-3"></i>
+                                    <h3 id="memberSince">-</h3>
+                                    <p class="text-muted mb-0">会員歴</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password Section -->
+                    <div id="changePassword" class="content-section d-none">
+                        <div class="bg-white rounded shadow-sm p-4">
+                            <h4 class="mb-4"><i class="fas fa-lock"></i> パスワード変更</h4>
+                            
+                            <form id="passwordForm">
+                                <div class="mb-3">
+                                    <label class="form-label">現在のパスワード <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="currentPassword" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">新しいパスワード <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="newPassword" 
+                                           required minlength="6">
+                                    <small class="text-muted">6文字以上で入力してください</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">新しいパスワード（確認） <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="confirmPassword" 
+                                           required minlength="6">
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="changePasswordBtn">
+                                    <i class="fas fa-key"></i> パスワードを変更
+                                </button>
+                            </form>
+
+                            <div class="alert alert-info mt-4">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>注意:</strong> パスワード変更機能は現在開発中です。
+                                Backend APIに対応する必要があります。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let currentUser = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication
+            if (!Auth.requireAuth()) {
+                return;
+            }
+
+            loadUserProfile();
+            loadUserStats();
+        });
+
+        // Load user profile
+        function loadUserProfile() {
+            // Get from localStorage
+            currentUser = Auth.getCurrentUser();
+
+            // Display profile
+            displayProfile(currentUser);
+        }
+
+        // Display profile
+        function displayProfile(user) {
+            document.getElementById('displayUsername').textContent = user.username || '-';
+            document.getElementById('displayEmail').textContent = user.email || '-';
+            document.getElementById('displayFullName').textContent = user.fullName || '-';
+            document.getElementById('displayRole').textContent = user.role || 'USER';
+
+            // Note: phone và address không có trong localStorage
+            // Cần call API.getUserProfile(userId) nếu backend có endpoint này
+            document.getElementById('displayPhone').textContent = '-';
+            document.getElementById('displayAddress').textContent = '-';
+        }
+
+        // Load user stats
+        async function loadUserStats() {
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.getOrders(userId, 0, 100);
+
+                if (response.success && response.data) {
+                    const orders = Array.isArray(response.data) ? response.data : response.data.content || [];
+                    
+                    // Total orders
+                    document.getElementById('totalOrders').textContent = orders.length;
+
+                    // Total spent
+                    const totalSpent = orders.reduce((sum, order) => sum + (order.finalAmount || 0), 0);
+                    document.getElementById('totalSpent').textContent = Utils.formatPrice(totalSpent);
+
+                    // Member since
+                    const lastVisit = localStorage.getItem(STORAGE_KEYS.LAST_VISIT);
+                    if (lastVisit) {
+                        const memberDate = new Date(lastVisit);
+                        const now = new Date();
+                        const months = Math.floor((now - memberDate) / (1000 * 60 * 60 * 24 * 30));
+                        document.getElementById('memberSince').textContent = months > 0 ? `${months}ヶ月` : '新規';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            const displayMode = document.getElementById('displayMode');
+            const editMode = document.getElementById('editMode');
+            const editBtn = document.getElementById('editBtn');
+
+            if (displayMode.classList.contains('d-none')) {
+                // Switch to display mode
+                displayMode.classList.remove('d-none');
+                editMode.classList.add('d-none');
+                editBtn.innerHTML = '<i class="fas fa-edit"></i> 編集';
+            } else {
+                // Switch to edit mode
+                displayMode.classList.add('d-none');
+                editMode.classList.remove('d-none');
+                editBtn.innerHTML = '<i class="fas fa-eye"></i> 表示';
+
+                // Fill form
+                document.getElementById('editUsername').value = currentUser.username || '';
+                document.getElementById('editEmail').value = currentUser.email || '';
+                document.getElementById('editFullName').value = currentUser.fullName || '';
+                document.getElementById('editPhone').value = '';
+                document.getElementById('editAddress').value = '';
+            }
+        }
+
+        // Handle profile form submit
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('editEmail').value.trim();
+            const fullName = document.getElementById('editFullName').value.trim();
+            const phone = document.getElementById('editPhone').value.trim();
+            const address = document.getElementById('editAddress').value.trim();
+
+            if (!Utils.validateEmail(email)) {
+                Utils.showAlert('有効なメールアドレスを入力してください', 'warning');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+
+            try {
+                // Update localStorage (since backend may not have update endpoint)
+                const updatedUser = {
+                    ...currentUser,
+                    email: email,
+                    fullName: fullName
+                };
+
+                // Update localStorage
+                localStorage.setItem(STORAGE_KEYS.USER_EMAIL, email);
+                localStorage.setItem(STORAGE_KEYS.USER_FULL_NAME, fullName);
+
+                Utils.showAlert('プロフィールを更新しました', 'success');
+                
+                currentUser = updatedUser;
+                displayProfile(currentUser);
+                toggleEditMode();
+
+                // Reload header to update name
+                if (typeof Header !== 'undefined' && Header.init) {
+                    Header.init();
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                Utils.handleApiError(error);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> 保存';
+            }
+        });
+
+        // Handle password form submit
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword.length < 6) {
+                Utils.showAlert('パスワードは6文字以上で入力してください', 'warning');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                Utils.showAlert('パスワードが一致しません', 'warning');
+                return;
+            }
+
+            // Backend API for password change not implemented yet
+            Utils.showAlert('パスワード変更機能は現在開発中です', 'info');
+            
+            // Clear form
+            document.getElementById('passwordForm').reset();
+        });
+
+        // Show section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('d-none');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('d-none');
+
+            // Update active menu item
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                Auth.logout();
+                Utils.showAlert('ログアウトしました', 'success');
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

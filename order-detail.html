@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文詳細 - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/index.html">ホーム</a></li>
+                    <li class="breadcrumb-item"><a href="/orders.html">注文履歴</a></li>
+                    <li class="breadcrumb-item active">注文詳細</li>
+                </ol>
+            </nav>
+
+            <!-- Order Detail -->
+            <div id="orderDetail">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">読み込み中...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication
+            if (!Auth.requireAuth()) {
+                return;
+            }
+
+            const orderId = Utils.getQueryParam('id');
+            
+            if (!orderId) {
+                window.location.href = '/orders.html';
+                return;
+            }
+
+            loadOrderDetail(orderId);
+        });
+
+        // Load order detail
+        async function loadOrderDetail(orderId) {
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.getOrderById(userId, orderId);
+
+                if (response.success && response.data) {
+                    displayOrderDetail(response.data);
+                } else {
+                    displayError();
+                }
+            } catch (error) {
+                console.error('Error loading order:', error);
+                displayError();
+            }
+        }
+
+        // Display order detail
+        function displayOrderDetail(order) {
+            const container = document.getElementById('orderDetail');
+            
+            container.innerHTML = `
+                <!-- Order Header -->
+                <div class="bg-white p-4 rounded shadow-sm mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <h2 class="mb-2">
+                                <i class="fas fa-receipt"></i> ${order.orderNumber}
+                            </h2>
+                            <p class="text-muted mb-0">
+                                注文日時: ${Utils.formatDateTime(order.createdAt)}
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="badge ${Utils.getOrderStatusBadge(order.status)} fs-5 mb-2">
+                                ${Utils.getOrderStatusText(order.status)}
+                            </span>
+                            <div>
+                                <a href="/orders.html" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> 注文履歴に戻る
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Order Items -->
+                    <div class="col-lg-8 mb-4">
+                        <div class="bg-white p-4 rounded shadow-sm">
+                            <h4 class="mb-3"><i class="fas fa-box"></i> 注文商品</h4>
+                            
+                            ${order.orderItems ? order.orderItems.map(item => `
+                                <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">
+                                            <a href="/product-detail.html?id=${item.productId}">
+                                                ${item.productName}
+                                            </a>
+                                        </h6>
+                                        <div class="text-muted small">
+                                            ${Utils.formatPrice(item.price)} × ${item.quantity}個
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <strong class="text-primary">
+                                            ${Utils.formatPrice(item.subtotal)}
+                                        </strong>
+                                    </div>
+                                </div>
+                            `).join('') : ''}
+
+                            <!-- Order Summary -->
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>小計:</span>
+                                    <strong>${Utils.formatPrice(order.totalAmount)}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>配送料:</span>
+                                    <strong>${Utils.formatPrice(order.shippingFee || 0)}</strong>
+                                </div>
+                                ${order.discountAmount > 0 ? `
+                                    <div class="d-flex justify-content-between mb-2 text-success">
+                                        <span>割引:</span>
+                                        <strong>-${Utils.formatPrice(order.discountAmount)}</strong>
+                                    </div>
+                                ` : ''}
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <h5>合計:</h5>
+                                    <h5 class="text-primary">${Utils.formatPrice(order.finalAmount)}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Info -->
+                    <div class="col-lg-4">
+                        <!-- Shipping Info -->
+                        <div class="bg-white p-4 rounded shadow-sm mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-shipping-fast"></i> 配送情報
+                            </h5>
+                            <div class="mb-2">
+                                <strong>お名前:</strong><br>
+                                ${order.shippingName}
+                            </div>
+                            <div class="mb-2">
+                                <strong>電話番号:</strong><br>
+                                ${order.shippingPhone}
+                            </div>
+                            <div class="mb-2">
+                                <strong>配送先:</strong><br>
+                                ${order.shippingAddress}
+                            </div>
+                            ${order.note ? `
+                                <div class="mt-3 p-2 bg-light rounded">
+                                    <small class="text-muted">備考:</small><br>
+                                    <small>${order.note}</small>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Payment Info -->
+                        <div class="bg-white p-4 rounded shadow-sm mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-credit-card"></i> 支払い情報
+                            </h5>
+                            <div class="mb-2">
+                                <strong>支払い方法:</strong><br>
+                                ${Utils.getPaymentMethodText(order.paymentMethod)}
+                            </div>
+                            <div class="mb-2">
+                                <strong>支払い状態:</strong><br>
+                                <span class="badge ${order.paymentStatus === 'PAID' ? 'bg-success' : 'bg-warning'}">
+                                    ${order.paymentStatus === 'PAID' ? '支払済み' : '未払い'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Order Status History -->
+                        ${order.statusHistory && order.statusHistory.length > 0 ? `
+                            <div class="bg-white p-4 rounded shadow-sm">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-history"></i> ステータス履歴
+                                </h5>
+                                ${order.statusHistory.map(history => `
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="badge ${Utils.getOrderStatusBadge(history.status)}">
+                                                ${Utils.getOrderStatusText(history.status)}
+                                            </span>
+                                            <small class="text-muted">
+                                                ${Utils.formatDateTime(history.changedAt)}
+                                            </small>
+                                        </div>
+                                        ${history.note ? `
+                                            <small class="text-muted">${history.note}</small>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display error
+        function displayError() {
+            const container = document.getElementById('orderDetail');
+            container.innerHTML = `
+                <div class="bg-white rounded shadow-sm p-5 text-center">
+                    <i class="fas fa-exclamation-triangle fa-5x text-danger mb-4"></i>
+                    <h3 class="mb-3">注文が見つかりません</h3>
+                    <p class="text-muted mb-4">注文情報の取得に失敗しました</p>
+                    <a href="/orders.html" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> 注文履歴に戻る
+                    </a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

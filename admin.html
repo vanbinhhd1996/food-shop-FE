@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background: #2c3e50;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin: 5px 10px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .stat-card {
+            border-left: 4px solid;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .admin-content {
+            min-height: calc(100vh - 56px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0 sidebar">
+                <div class="py-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-shield fa-3x mb-2"></i>
+                        <h5 id="adminName">管理者</h5>
+                    </div>
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="#dashboard" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> ダッシュボード
+                        </a>
+                        <a class="nav-link" href="#products" onclick="showSection('products')">
+                            <i class="fas fa-box"></i> 商品管理
+                        </a>
+                        <a class="nav-link" href="#orders" onclick="showSection('orders')">
+                            <i class="fas fa-shopping-cart"></i> 注文管理
+                        </a>
+                        <a class="nav-link" href="#users" onclick="showSection('users')">
+                            <i class="fas fa-users"></i> ユーザー管理
+                        </a>
+                        <a class="nav-link" href="#categories" onclick="showSection('categories')">
+                            <i class="fas fa-tags"></i> カテゴリー管理
+                        </a>
+                        <hr class="text-white">
+                        <a class="nav-link" href="/index.html">
+                            <i class="fas fa-home"></i> サイトに戻る
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 admin-content">
+                <div class="py-4">
+                    <!-- Dashboard Section -->
+                    <div id="dashboard" class="admin-section">
+                        <h2 class="mb-4"><i class="fas fa-tachometer-alt"></i> ダッシュボード</h2>
+
+                        <!-- Stats Cards -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="card stat-card border-primary">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted mb-1">総注文数</h6>
+                                                <h3 id="totalOrders">0</h3>
+                                            </div>
+                                            <i class="fas fa-shopping-cart fa-2x text-primary"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card border-success">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted mb-1">総売上</h6>
+                                                <h3 id="totalRevenue">¥0</h3>
+                                            </div>
+                                            <i class="fas fa-yen-sign fa-2x text-success"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card border-info">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted mb-1">商品数</h6>
+                                                <h3 id="totalProducts">0</h3>
+                                            </div>
+                                            <i class="fas fa-box fa-2x text-info"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card border-warning">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted mb-1">ユーザー数</h6>
+                                                <h3 id="totalUsers">-</h3>
+                                            </div>
+                                            <i class="fas fa-users fa-2x text-warning"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Orders -->
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-clock"></i> 最近の注文</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentOrders">
+                                    <div class="text-center py-3">
+                                        <div class="spinner-border" role="status"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products Section -->
+                    <div id="products" class="admin-section d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2><i class="fas fa-box"></i> 商品管理</h2>
+                            <button class="btn btn-primary" onclick="alert('商品追加機能は開発中です')">
+                                <i class="fas fa-plus"></i> 商品を追加
+                            </button>
+                        </div>
+
+                        <!-- Search & Filter -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="productSearch" 
+                                               placeholder="商品名で検索...">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="productCategory">
+                                            <option value="">すべてのカテゴリー</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-primary w-100" onclick="loadProducts()">
+                                            <i class="fas fa-search"></i> 検索
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Products Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="productsTable">
+                                    <div class="text-center py-3">
+                                        <div class="spinner-border" role="status"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orders Section -->
+                    <div id="orders" class="admin-section d-none">
+                        <h2 class="mb-4"><i class="fas fa-shopping-cart"></i> 注文管理</h2>
+
+                        <!-- Filter -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="orderStatus">
+                                            <option value="">すべてのステータス</option>
+                                            <option value="PENDING">注文確認中</option>
+                                            <option value="CONFIRMED">確認済み</option>
+                                            <option value="PROCESSING">処理中</option>
+                                            <option value="SHIPPED">発送済み</option>
+                                            <option value="DELIVERED">配達完了</option>
+                                            <option value="CANCELLED">キャンセル</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-primary w-100" onclick="loadAllOrders()">
+                                            <i class="fas fa-filter"></i> フィルター
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orders Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="ordersTable">
+                                    <div class="text-center py-3">
+                                        <div class="spinner-border" role="status"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Section -->
+                    <div id="users" class="admin-section d-none">
+                        <h2 class="mb-4"><i class="fas fa-users"></i> ユーザー管理</h2>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    ユーザー管理機能は現在開発中です。Backend APIに対応する必要があります。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categories Section -->
+                    <div id="categories" class="admin-section d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2><i class="fas fa-tags"></i> カテゴリー管理</h2>
+                            <button class="btn btn-primary" onclick="alert('カテゴリー追加機能は開発中です')">
+                                <i class="fas fa-plus"></i> カテゴリーを追加
+                            </button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="categoriesTable">
+                                    <div class="text-center py-3">
+                                        <div class="spinner-border" role="status"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // Check admin access
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.requireAuth()) {
+                return;
+            }
+
+            // Check if user is admin
+            if (!Auth.isAdmin()) {
+                Utils.showAlert('管理者権限が必要です', 'danger');
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 2000);
+                return;
+            }
+
+            // Display admin name
+            document.getElementById('adminName').textContent = Auth.getFullName() || '管理者';
+
+            // Load dashboard data
+            loadDashboardStats();
+            loadRecentOrders();
+        });
+
+        // Show section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.add('d-none');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('d-none');
+
+            // Update active menu
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Load section data
+            switch(sectionId) {
+                case 'products':
+                    loadProducts();
+                    loadCategoriesForFilter();
+                    break;
+                case 'orders':
+                    loadAllOrders();
+                    break;
+                case 'categories':
+                    loadCategories();
+                    break;
+            }
+        }
+
+        // Load dashboard stats
+        async function loadDashboardStats() {
+            try {
+                // Load products
+                const productsRes = await API.getProducts(0, 1000);
+                if (productsRes.success && productsRes.data) {
+                    const products = Array.isArray(productsRes.data) ? productsRes.data : productsRes.data.content || [];
+                    document.getElementById('totalProducts').textContent = products.length;
+                }
+
+                // Load all orders (without userId for admin)
+                // Note: Backend needs admin endpoint to get all orders
+                // For now, we'll show a placeholder
+                document.getElementById('totalOrders').textContent = '-';
+                document.getElementById('totalRevenue').textContent = '-';
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load recent orders
+        async function loadRecentOrders() {
+            const container = document.getElementById('recentOrders');
+            
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    注文データを表示するには、Backend APIに管理者用のエンドポイントが必要です。
+                    <br>例: GET /api/admin/orders
+                </div>
+            `;
+        }
+
+        // Load products
+        async function loadProducts() {
+            try {
+                const keyword = document.getElementById('productSearch').value.trim();
+                let response;
+
+                if (keyword) {
+                    response = await API.searchProducts(keyword, 0, 100);
+                } else {
+                    response = await API.getProducts(0, 100);
+                }
+
+                if (response.success && response.data) {
+                    const products = Array.isArray(response.data) ? response.data : response.data.content || [];
+                    displayProductsTable(products);
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Display products table
+        function displayProductsTable(products) {
+            const container = document.getElementById('productsTable');
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">商品が見つかりません</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>商品名</th>
+                                <th>価格</th>
+                                <th>在庫</th>
+                                <th>状態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${products.map(p => `
+                                <tr>
+                                    <td>${p.id}</td>
+                                    <td>${p.name}</td>
+                                    <td>${Utils.formatPrice(p.price)}</td>
+                                    <td>
+                                        <span class="badge ${p.stockQuantity > 10 ? 'bg-success' : p.stockQuantity > 0 ? 'bg-warning' : 'bg-danger'}">
+                                            ${p.stockQuantity}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${p.isActive ? 'bg-success' : 'bg-secondary'}">
+                                            ${p.isActive ? '有効' : '無効'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="alert('編集機能は開発中です')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="alert('削除機能は開発中です')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Load all orders
+        async function loadAllOrders() {
+            const container = document.getElementById('ordersTable');
+            
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    すべての注文を表示するには、Backend APIに管理者用のエンドポイントが必要です。
+                    <br>例: GET /api/admin/orders
+                </div>
+            `;
+        }
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const response = await API.getCategories();
+
+                if (response.success && response.data) {
+                    displayCategoriesTable(response.data);
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        // Display categories table
+        function displayCategoriesTable(categories) {
+            const container = document.getElementById('categoriesTable');
+
+            container.innerHTML = `
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>カテゴリー名</th>
+                                <th>親カテゴリー</th>
+                                <th>状態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${categories.map(c => `
+                                <tr>
+                                    <td>${c.id}</td>
+                                    <td>${c.name}</td>
+                                    <td>${c.parentId || '-'}</td>
+                                    <td>
+                                        <span class="badge ${c.isActive ? 'bg-success' : 'bg-secondary'}">
+                                            ${c.isActive ? '有効' : '無効'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="alert('編集機能は開発中です')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Load categories for filter
+        async function loadCategoriesForFilter() {
+            try {
+                const response = await API.getCategories();
+
+                if (response.success && response.data) {
+                    const select = document.getElementById('productCategory');
+                    select.innerHTML = '<option value="">すべてのカテゴリー</option>' +
+                        response.data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+    </script>
+</body>
+</html>

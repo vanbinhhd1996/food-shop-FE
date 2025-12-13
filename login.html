@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="form-container">
+                        <!-- Title -->
+                        <h2 class="form-title">
+                            <i class="fas fa-sign-in-alt"></i> ログイン
+                        </h2>
+
+                        <!-- Login Form -->
+                        <form id="loginForm">
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user"></i> ユーザー名
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="username" 
+                                    name="username"
+                                    placeholder="ユーザー名を入力"
+                                    required
+                                    autocomplete="username"
+                                >
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock"></i> パスワード
+                                </label>
+                                <div class="input-group">
+                                    <input 
+                                        type="password" 
+                                        class="form-control" 
+                                        id="password" 
+                                        name="password"
+                                        placeholder="パスワードを入力"
+                                        required
+                                        autocomplete="current-password"
+                                    >
+                                    <button 
+                                        class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="togglePassword"
+                                    >
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Remember Me -->
+                            <div class="mb-3 form-check">
+                                <input 
+                                    type="checkbox" 
+                                    class="form-check-input" 
+                                    id="rememberMe"
+                                >
+                                <label class="form-check-label" for="rememberMe">
+                                    ログイン状態を保持
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary w-100 mb-3"
+                                id="loginBtn"
+                            >
+                                <i class="fas fa-sign-in-alt"></i> ログイン
+                            </button>
+
+                            <!-- Divider -->
+                            <div class="text-center mb-3">
+                                <span class="text-muted">または</span>
+                            </div>
+
+                            <!-- Register Link -->
+                            <div class="text-center">
+                                <p class="mb-0">
+                                    アカウントをお持ちでないですか？
+                                    <a href="/register.html" class="text-primary fw-bold">
+                                        新規登録
+                                    </a>
+                                </p>
+                            </div>
+                        </form>
+
+                        <!-- Demo Accounts -->
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="mb-2">
+                                <i class="fas fa-info-circle"></i> テストアカウント
+                            </h6>
+                            <small class="text-muted">
+                                <strong>一般ユーザー:</strong><br>
+                                Username: yamada<br>
+                                Password: 123456
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // Redirect if already logged in
+        Auth.redirectIfAuthenticated();
+
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Handle form submit
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Validation
+            if (!username || !password) {
+                Utils.showAlert('ユーザー名とパスワードを入力してください', 'warning');
+                return;
+            }
+
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ログイン中...';
+
+            try {
+                // Call login API
+                const response = await API.login({
+                    username: username,
+                    password: password
+                });
+
+                if (response.success && response.data) {
+                    // Save user data
+                    Auth.saveUser(response.data);
+
+                    // Show success message
+                    Utils.showAlert('ログインに成功しました！', 'success');
+
+                    // Redirect to home after 1 second
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 1000);
+                } else {
+                    Utils.showAlert(response.message || 'ログインに失敗しました', 'danger');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ログイン';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                Utils.showAlert('ユーザー名またはパスワードが正しくありません', 'danger');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ログイン';
+            }
+        });
+    </script>
+</body>
+</html>

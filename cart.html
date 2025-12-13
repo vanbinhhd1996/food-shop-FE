@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カート - Makase-supa</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-shopping-cart"></i> ショッピングカート</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/index.html">ホーム</a></li>
+                            <li class="breadcrumb-item active">カート</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Cart Content -->
+            <div class="row">
+                <!-- Cart Items -->
+                <div class="col-lg-8 mb-4">
+                    <div id="cartItems">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">読み込み中...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="col-lg-4">
+                    <div class="bg-white p-4 rounded shadow-sm sticky-top" style="top: 80px;">
+                        <h4 class="mb-3">注文サマリー</h4>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>小計:</span>
+                                <strong id="subtotal">¥0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>配送料:</span>
+                                <strong id="shippingFee">¥0</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5>合計:</h5>
+                                <h5 class="text-primary" id="total">¥0</h5>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" id="checkoutBtn" onclick="goToCheckout()" disabled>
+                                <i class="fas fa-credit-card"></i> レジに進む
+                            </button>
+                            <a href="/products.html" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> 買い物を続ける
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let cartData = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication
+            if (!Auth.requireAuth()) {
+                return;
+            }
+
+            loadCart();
+        });
+
+        // Load cart
+        async function loadCart() {
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.getCart(userId);
+
+                if (response.success && response.data) {
+                    cartData = response.data;
+                    displayCart(cartData);
+                } else {
+                    displayEmptyCart();
+                }
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                displayEmptyCart();
+            }
+        }
+
+        // Display cart
+        function displayCart(cart) {
+            const container = document.getElementById('cartItems');
+
+            if (!cart.items || cart.items.length === 0) {
+                displayEmptyCart();
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="bg-white rounded shadow-sm">
+                    <!-- Cart Header -->
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-box"></i> ${cart.totalItems}点の商品
+                        </h5>
+                        <button class="btn btn-sm btn-outline-danger" onclick="clearCart()">
+                            <i class="fas fa-trash"></i> カートを空にする
+                        </button>
+                    </div>
+
+                    <!-- Cart Items -->
+                    <div class="p-3">
+                        ${cart.items.map(item => `
+                            <div class="cart-item mb-3 pb-3 border-bottom">
+                                <div class="row align-items-center">
+                                    <!-- Product Image -->
+                                    <div class="col-md-2 col-3 mb-3 mb-md-0">
+                                        <a href="/product-detail.html?id=${item.productId}">
+                                            <img src="${Utils.getImageUrl(item.productImage)}" 
+                                                 alt="${item.productName}" 
+                                                 class="img-fluid rounded"
+                                                 onerror="this.src='https://via.placeholder.com/100'">
+                                        </a>
+                                    </div>
+
+                                    <!-- Product Info -->
+                                    <div class="col-md-4 col-9 mb-3 mb-md-0">
+                                        <h6 class="mb-1">
+                                            <a href="/product-detail.html?id=${item.productId}" class="text-dark">
+                                                ${item.productName}
+                                            </a>
+                                        </h6>
+                                        <div class="text-primary fw-bold">${Utils.formatPrice(item.price)}</div>
+                                        <small class="text-muted">在庫: ${item.availableStock}個</small>
+                                    </div>
+
+                                    <!-- Quantity -->
+                                    <div class="col-md-3 col-6 mb-3 mb-md-0">
+                                        <div class="input-group" style="max-width: 130px;">
+                                            <button class="btn btn-outline-secondary btn-sm" 
+                                                    onclick="updateQuantity(${item.id}, ${item.quantity - 1})"
+                                                    ${item.quantity <= 1 ? 'disabled' : ''}>
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" 
+                                                   class="form-control form-control-sm text-center" 
+                                                   value="${item.quantity}" 
+                                                   min="1" 
+                                                   max="${item.availableStock}"
+                                                   onchange="updateQuantity(${item.id}, this.value)"
+                                                   style="max-width: 50px;">
+                                            <button class="btn btn-outline-secondary btn-sm" 
+                                                    onclick="updateQuantity(${item.id}, ${item.quantity + 1})"
+                                                    ${item.quantity >= item.availableStock ? 'disabled' : ''}>
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subtotal & Remove -->
+                                    <div class="col-md-3 col-6 text-md-end">
+                                        <div class="fw-bold text-primary mb-2">
+                                            ${Utils.formatPrice(item.subtotal)}
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${item.id})">
+                                            <i class="fas fa-trash"></i> 削除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Update summary
+            updateSummary(cart);
+        }
+
+        // Display empty cart
+        function displayEmptyCart() {
+            const container = document.getElementById('cartItems');
+            container.innerHTML = `
+                <div class="bg-white rounded shadow-sm p-5 text-center">
+                    <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+                    <h3 class="mb-3">カートは空です</h3>
+                    <p class="text-muted mb-4">商品をカートに追加してください</p>
+                    <a href="/products.html" class="btn btn-primary">
+                        <i class="fas fa-shopping-bag"></i> 商品を見る
+                    </a>
+                </div>
+            `;
+
+            // Disable checkout button
+            document.getElementById('checkoutBtn').disabled = true;
+            updateSummary({ totalAmount: 0 });
+        }
+
+        // Update summary
+        function updateSummary(cart) {
+            const subtotal = cart.totalAmount || 0;
+            const shippingFee = subtotal >= 5000 ? 0 : 500; // Free shipping over ¥5000
+            const total = subtotal + shippingFee;
+
+            document.getElementById('subtotal').textContent = Utils.formatPrice(subtotal);
+            document.getElementById('shippingFee').textContent = Utils.formatPrice(shippingFee);
+            document.getElementById('total').textContent = Utils.formatPrice(total);
+
+            // Enable checkout if cart has items
+            document.getElementById('checkoutBtn').disabled = subtotal === 0;
+        }
+
+        // Update quantity
+        async function updateQuantity(itemId, newQuantity) {
+            newQuantity = parseInt(newQuantity);
+
+            if (newQuantity < 1) {
+                return;
+            }
+
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.updateCartItem(userId, itemId, newQuantity);
+
+                if (response.success) {
+                    Utils.showAlert('数量を更新しました', 'success');
+                    loadCart();
+                    
+                    // Update cart count in header
+                    if (response.data && response.data.totalItems) {
+                        Utils.updateCartCount(response.data.totalItems);
+                    } else {
+                        Header.updateCartCount();
+                    }
+                } else {
+                    Utils.showAlert(response.message || '更新に失敗しました', 'danger');
+                }
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+                Utils.handleApiError(error);
+            }
+        }
+
+        // Remove item
+        async function removeItem(itemId) {
+            if (!confirm('この商品をカートから削除しますか？')) {
+                return;
+            }
+
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.removeCartItem(userId, itemId);
+
+                if (response.success) {
+                    Utils.showAlert('商品を削除しました', 'success');
+                    loadCart();
+                    
+                    // Update cart count in header
+                    if (response.data && response.data.totalItems !== undefined) {
+                        Utils.updateCartCount(response.data.totalItems);
+                    } else {
+                        Header.updateCartCount();
+                    }
+                } else {
+                    Utils.showAlert(response.message || '削除に失敗しました', 'danger');
+                }
+            } catch (error) {
+                console.error('Error removing item:', error);
+                Utils.handleApiError(error);
+            }
+        }
+
+        // Clear cart
+        async function clearCart() {
+            if (!confirm('カート内のすべての商品を削除しますか？')) {
+                return;
+            }
+
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.clearCart(userId);
+
+                if (response.success) {
+                    Utils.showAlert('カートを空にしました', 'success');
+                    displayEmptyCart();
+                    Utils.updateCartCount(0);
+                } else {
+                    Utils.showAlert(response.message || '削除に失敗しました', 'danger');
+                }
+            } catch (error) {
+                console.error('Error clearing cart:', error);
+                Utils.handleApiError(error);
+            }
+        }
+
+        // Go to checkout
+        function goToCheckout() {
+            if (!cartData || !cartData.items || cartData.items.length === 0) {
+                Utils.showAlert('カートが空です', 'warning');
+                return;
+            }
+
+            window.location.href = '/checkout.html';
+        }
+    </script>
+</body>
+</html>
