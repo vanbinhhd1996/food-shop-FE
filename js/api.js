@@ -5,7 +5,7 @@ const API = {
      */
     async request(endpoint, options = {}) {
         const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-        
+
         try {
             const response = await fetch(url, {
                 headers: {
@@ -16,11 +16,11 @@ const API = {
             });
 
             const data = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(data.message || 'API request failed');
             }
-            
+
             return data;
         } catch (error) {
             console.error('API Error:', error);
@@ -29,7 +29,7 @@ const API = {
     },
 
     // ==================== AUTH APIs ====================
-    
+
     /**
      * Đăng ký user mới
      */
@@ -51,7 +51,6 @@ const API = {
     },
 
     // ==================== PRODUCT APIs ====================
-    
     /**
      * Lấy danh sách sản phẩm với phân trang
      */
@@ -81,7 +80,7 @@ const API = {
     },
 
     // ==================== CATEGORY APIs ====================
-    
+
     /**
      * Lấy danh sách tất cả categories
      */
@@ -97,7 +96,7 @@ const API = {
     },
 
     // ==================== CART APIs ====================
-    
+
     /**
      * Lấy giỏ hàng của user
      */
@@ -144,7 +143,7 @@ const API = {
     },
 
     // ==================== ORDER APIs ====================
-    
+
     /**
      * Tạo đơn hàng mới
      */
@@ -170,7 +169,7 @@ const API = {
     },
 
     // ==================== REVIEW APIs ====================
-    
+
     /**
      * Tạo review cho sản phẩm
      */
@@ -189,7 +188,7 @@ const API = {
     },
 
     // ==================== FILE APIs ====================
-    
+
     /**
      * Upload file (image)
      */
@@ -198,7 +197,7 @@ const API = {
         formData.append('file', file);
 
         const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.FILE_UPLOAD}`;
-        
+
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -207,11 +206,11 @@ const API = {
             });
 
             const data = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(data.message || 'File upload failed');
             }
-            
+
             return data;
         } catch (error) {
             console.error('Upload Error:', error);
@@ -220,12 +219,12 @@ const API = {
     },
 
     // ==================== USER APIs ====================
-    
+
     /**
      * Lấy thông tin profile user
      */
     async getUserProfile(userId) {
-        return this.request(`${API_CONFIG.ENDPOINTS.USER_PROFILE}?userId=${userId}`);
+        return this.request(`${API_CONFIG.ENDPOINTS.USER_PROFILE}${userId}`);
     },
 
     /**
@@ -239,7 +238,7 @@ const API = {
     },
 
     // ==================== HEALTH CHECK ====================
-    
+
     /**
      * Kiểm tra server health
      */

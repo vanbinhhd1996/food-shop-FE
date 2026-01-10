@@ -5,39 +5,39 @@ const API_CONFIG = {
         // Auth
         REGISTER: '/auth/register',
         LOGIN: '/auth/login',
-        
+
         // Products
         PRODUCTS: '/products',
         PRODUCT_DETAIL: '/products',
         PRODUCT_SEARCH: '/products/search',
         PRODUCTS_BY_CATEGORY: '/products/category',
-        
+
         // Categories
         CATEGORIES: '/categories',
         CATEGORY_TREE: '/categories/tree',
-        
+
         // Cart
         CART: '/cart',
         CART_ITEMS: '/cart/items',
         CART_ITEM: '/cart/items',
-        CART_CLEAR: '/cart/clear',
-        
+        CART_CLEAR: '/cart',
+
         // Orders
         ORDERS: '/orders',
         ORDER_DETAIL: '/orders',
-        
+
         // Reviews
         REVIEWS: '/reviews',
         PRODUCT_REVIEWS: '/reviews/product',
-        
+
         // Files
         FILE_UPLOAD: '/files/upload',
         FILE_DOWNLOAD: '/files',
-        
+
         // User
-        USER_PROFILE: '/user/profile',
+        USER_PROFILE: '/user/',
         USER_UPDATE: '/user/update',
-        
+
         // Health
         HEALTH: '/health'
     }
