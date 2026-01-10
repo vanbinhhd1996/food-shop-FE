@@ -50,6 +50,15 @@ const API = {
         });
     },
 
+    /**
+     * Đổi mật khẩu
+     */
+    async changePassword(userId, credentials) {
+        return this.request(`${API_CONFIG.ENDPOINTS.USER_PROFILE}${userId}/password`, {
+            method: "PUT",
+            body: JSON.stringify(credentials)
+        })
+    },
     // ==================== PRODUCT APIs ====================
     /**
      * Lấy danh sách sản phẩm với phân trang

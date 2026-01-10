@@ -368,7 +368,7 @@
         });
 
         // Handle password form submit
-        document.getElementById('passwordForm').addEventListener('submit', function (e) {
+        document.getElementById('passwordForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const currentPassword = document.getElementById('currentPassword').value;
@@ -385,8 +385,28 @@
                 return;
             }
 
-            // Backend API for password change not implemented yet
-            Utils.showAlert('パスワード変更機能は現在開発中です', 'info');
+
+            try {
+                // Call change password API
+                const response = await API.changePassword(Auth.getUserId(), {
+                    oldPassword: currentPassword,
+                    newPassword: newPassword
+                });
+
+                if (response.success && response.data) {
+                    // Show success message
+                    Utils.showAlert('パスワード変更できました。')
+                    // Redirect to login after 2 second
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                } else {
+                    Utils.showAlert(response.message || 'ログインに失敗しました', 'danger')
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                Utils.showAlert(error, 'danger');
+            }
 
             // Clear form
             document.getElementById('passwordForm').reset();
