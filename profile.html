@@ -337,7 +337,7 @@
             saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
 
             try {
-                // Update localStorage (since backend may not have update endpoint)
+                //Handle Update profile
                 const updatedUser = {
                     ...currentUser,
                     email: email,
