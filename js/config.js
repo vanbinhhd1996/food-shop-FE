@@ -36,7 +36,7 @@ const API_CONFIG = {
 
         // User
         USER_PROFILE: '/user/',
-        USER_UPDATE: '/user/update',
+        USER_UPDATE: '/user/',
 
         // Health
         HEALTH: '/health'

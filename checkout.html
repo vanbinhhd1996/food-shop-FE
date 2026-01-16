@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注文確認 - Makase-supa</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -12,6 +13,7 @@
     <!-- Custom CSS -->
     <link href="css/style.css" rel="stylesheet">
 </head>
+
 <body>
     <!-- Header -->
     <div id="header"></div>
@@ -64,7 +66,7 @@
                 <div class="col-lg-8 mb-4">
                     <div class="bg-white p-4 rounded shadow-sm">
                         <h4 class="mb-4"><i class="fas fa-shipping-fast"></i> 配送情報</h4>
-                        
+
                         <form id="checkoutForm">
                             <!-- Name -->
                             <div class="mb-3">
@@ -79,8 +81,8 @@
                                 <label for="shippingPhone" class="form-label">
                                     電話番号 <span class="text-danger">*</span>
                                 </label>
-                                <input type="tel" class="form-control" id="shippingPhone" 
-                                       placeholder="090-1234-5678" required>
+                                <input type="tel" class="form-control" id="shippingPhone" placeholder="090-1234-5678"
+                                    required>
                             </div>
 
                             <!-- Address -->
@@ -88,8 +90,8 @@
                                 <label for="shippingAddress" class="form-label">
                                     配送先住所 <span class="text-danger">*</span>
                                 </label>
-                                <textarea class="form-control" id="shippingAddress" rows="3" 
-                                          placeholder="東京都渋谷区道玄坂1-2-3" required></textarea>
+                                <textarea class="form-control" id="shippingAddress" rows="3"
+                                    placeholder="東京都渋谷区道玄坂1-2-3" required></textarea>
                             </div>
 
                             <!-- Payment Method -->
@@ -98,22 +100,22 @@
                                     支払い方法 <span class="text-danger">*</span>
                                 </label>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                                           id="codPayment" value="COD" checked>
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="codPayment"
+                                        value="COD" checked>
                                     <label class="form-check-label" for="codPayment">
                                         <i class="fas fa-money-bill-wave"></i> 代金引換
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                                           id="bankPayment" value="BANK_TRANSFER">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="bankPayment"
+                                        value="BANK_TRANSFER">
                                     <label class="form-check-label" for="bankPayment">
                                         <i class="fas fa-university"></i> 銀行振込
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                                           id="cardPayment" value="CREDIT_CARD">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment"
+                                        value="CREDIT_CARD">
                                     <label class="form-check-label" for="cardPayment">
                                         <i class="fas fa-credit-card"></i> クレジットカード
                                     </label>
@@ -125,8 +127,8 @@
                                 <label for="orderNote" class="form-label">
                                     備考（オプション）
                                 </label>
-                                <textarea class="form-control" id="orderNote" rows="2" 
-                                          placeholder="配達時間の希望など"></textarea>
+                                <textarea class="form-control" id="orderNote" rows="2"
+                                    placeholder="配達時間の希望など"></textarea>
                             </div>
                         </form>
                     </div>
@@ -136,7 +138,7 @@
                 <div class="col-lg-4">
                     <div class="bg-white p-4 rounded shadow-sm sticky-top" style="top: 80px;">
                         <h4 class="mb-3">注文内容</h4>
-                        
+
                         <!-- Items -->
                         <div id="orderItems" class="mb-3">
                             <div class="text-center py-3">
@@ -182,20 +184,21 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Core Scripts -->
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
-    
+
     <!-- Components -->
     <script src="js/components/header.js"></script>
     <script src="js/components/footer.js"></script>
-    
+
     <!-- Page Script -->
     <script>
         let cartData = null;
+        let currentUser = null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -216,7 +219,7 @@
 
                 if (response.success && response.data) {
                     cartData = response.data;
-                    
+
                     if (!cartData.items || cartData.items.length === 0) {
                         Utils.showAlert('カートが空です', 'warning');
                         setTimeout(() => {
@@ -239,17 +242,26 @@
         }
 
         // Load user info
-        function loadUserInfo() {
-            const fullName = Auth.getFullName();
-            if (fullName) {
-                document.getElementById('shippingName').value = fullName;
+        async function loadUserInfo() {
+            try {
+                const userId = Auth.getUserId();
+                const response = await API.getUserProfile(userId)
+                if (response.success && response.data) {
+                    currentUser = response.data;
+                    document.getElementById('shippingName').value = currentUser.fullName;
+                    document.getElementById('shippingPhone').value = currentUser.phone;
+                    document.getElementById('shippingAddress').value = currentUser.address;
+                }
+
+            } catch (error) {
+                console.error('Error loading user:', error);
             }
         }
 
         // Display order summary
         function displayOrderSummary(cart) {
             const itemsContainer = document.getElementById('orderItems');
-            
+
             itemsContainer.innerHTML = cart.items.map(item => `
                 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
                     <div class="flex-grow-1">
@@ -275,7 +287,7 @@
         // Place order
         async function placeOrder() {
             const form = document.getElementById('checkoutForm');
-            
+
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
@@ -315,10 +327,10 @@
 
                 if (response.success && response.data) {
                     Utils.showAlert('注文が完了しました！', 'success');
-                    
+
                     // Clear cart count
                     Utils.updateCartCount(0);
-                    
+
                     // Redirect to order detail
                     setTimeout(() => {
                         window.location.href = `/order-detail.html?id=${response.data.id}`;
@@ -337,4 +349,5 @@
         }
     </script>
 </body>
+
 </html>

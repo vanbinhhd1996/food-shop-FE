@@ -240,7 +240,7 @@ const API = {
      * Update thông tin user
      */
     async updateUserProfile(userId, userData) {
-        return this.request(`${API_CONFIG.ENDPOINTS.USER_UPDATE}?userId=${userId}`, {
+        return this.request(`${API_CONFIG.ENDPOINTS.USER_UPDATE}${userId}`, {
             method: 'PUT',
             body: JSON.stringify(userData)
         });

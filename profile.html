@@ -341,19 +341,25 @@
                 const updatedUser = {
                     ...currentUser,
                     email: email,
-                    fullName: fullName
+                    fullName: fullName,
+                    phone: phone,
+                    address: address
                 };
 
-                // Update localStorage
-                localStorage.setItem(STORAGE_KEYS.USER_EMAIL, email);
-                localStorage.setItem(STORAGE_KEYS.USER_FULL_NAME, fullName);
+                const userId = Auth.getUserId();
+                const response = await API.updateUserProfile(userId, updatedUser);
 
-                Utils.showAlert('プロフィールを更新しました', 'success');
-
-                currentUser = updatedUser;
-                displayProfile(currentUser);
-                toggleEditMode();
-
+                if (response.success) {
+                    // Update localStorage
+                    localStorage.setItem(STORAGE_KEYS.USER_EMAIL, email);
+                    localStorage.setItem(STORAGE_KEYS.USER_FULL_NAME, fullName);
+                    Utils.showAlert('プロフィールを更新しました', 'success');
+                    currentUser = updatedUser;
+                    displayProfile(currentUser);
+                    toggleEditMode();
+                } else {
+                    Utils.showAlert('プロフィールを失敗しました', 'danger');
+                }
                 // Reload header to update name
                 if (typeof Header !== 'undefined' && Header.init) {
                     Header.init();
