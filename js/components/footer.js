@@ -13,7 +13,7 @@ const Footer = {
                             <h5>
                                 <i class="fas fa-store"></i> Makase-supa
                             </h5>
-                            <p class="text-muted">
+                            <p class="list-unstyled">
                                 新鮮な野菜、果物、お肉、魚など、厳選した食材をお届けします。
                                 毎日の食卓を豊かにする、信頼できる食品スーパーです。
                             </p>
@@ -120,7 +120,7 @@ const Footer = {
      */
     initScrollToTop() {
         const scrollBtn = document.getElementById('scrollToTop');
-        
+
         if (scrollBtn) {
             // Show/hide button on scroll
             window.addEventListener('scroll', () => {

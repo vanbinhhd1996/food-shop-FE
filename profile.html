@@ -393,13 +393,14 @@
                     newPassword: newPassword
                 });
 
-                if (response.success && response.data) {
+                if (response.success) {
                     // Show success message
-                    Utils.showAlert('パスワード変更できました。')
+                    Utils.showAlert('パスワード変更できました。', 'success')
                     // Redirect to login after 2 second
                     setTimeout(() => {
+                        Auth.logout();
                         window.location.href = '/login.html';
-                    }, 2000);
+                    }, 1000);
                 } else {
                     Utils.showAlert(response.message || 'ログインに失敗しました', 'danger')
                 }

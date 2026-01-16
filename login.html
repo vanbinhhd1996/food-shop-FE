@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン - Makase-supa</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -12,6 +13,7 @@
     <!-- Custom CSS -->
     <link href="css/style.css" rel="stylesheet">
 </head>
+
 <body>
     <!-- Header -->
     <div id="header"></div>
@@ -34,15 +36,8 @@
                                 <label for="username" class="form-label">
                                     <i class="fas fa-user"></i> ユーザー名
                                 </label>
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    id="username" 
-                                    name="username"
-                                    placeholder="ユーザー名を入力"
-                                    required
-                                    autocomplete="username"
-                                >
+                                <input type="text" class="form-control" id="username" name="username"
+                                    placeholder="ユーザー名を入力" required autocomplete="username">
                             </div>
 
                             <!-- Password -->
@@ -51,20 +46,9 @@
                                     <i class="fas fa-lock"></i> パスワード
                                 </label>
                                 <div class="input-group">
-                                    <input 
-                                        type="password" 
-                                        class="form-control" 
-                                        id="password" 
-                                        name="password"
-                                        placeholder="パスワードを入力"
-                                        required
-                                        autocomplete="current-password"
-                                    >
-                                    <button 
-                                        class="btn btn-outline-secondary" 
-                                        type="button" 
-                                        id="togglePassword"
-                                    >
+                                    <input type="password" class="form-control" id="password" name="password"
+                                        placeholder="パスワードを入力" required autocomplete="current-password">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -72,22 +56,14 @@
 
                             <!-- Remember Me -->
                             <div class="mb-3 form-check">
-                                <input 
-                                    type="checkbox" 
-                                    class="form-check-input" 
-                                    id="rememberMe"
-                                >
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
                                 <label class="form-check-label" for="rememberMe">
                                     ログイン状態を保持
                                 </label>
                             </div>
 
                             <!-- Submit Button -->
-                            <button 
-                                type="submit" 
-                                class="btn btn-primary w-100 mb-3"
-                                id="loginBtn"
-                            >
+                            <button type="submit" class="btn btn-primary w-100 mb-3" id="loginBtn">
                                 <i class="fas fa-sign-in-alt"></i> ログイン
                             </button>
 
@@ -108,7 +84,7 @@
                         </form>
 
                         <!-- Demo Accounts -->
-                        <div class="mt-4 p-3 bg-light rounded">
+                        <!-- <div class="mt-4 p-3 bg-light rounded">
                             <h6 class="mb-2">
                                 <i class="fas fa-info-circle"></i> テストアカウント
                             </h6>
@@ -117,7 +93,7 @@
                                 Username: yamada<br>
                                 Password: 123456
                             </small>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -129,27 +105,27 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Core Scripts -->
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
-    
+
     <!-- Components -->
     <script src="js/components/header.js"></script>
     <script src="js/components/footer.js"></script>
-    
+
     <!-- Page Script -->
     <script>
         // Redirect if already logged in
         Auth.redirectIfAuthenticated();
 
         // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function() {
+        document.getElementById('togglePassword').addEventListener('click', function () {
             const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -162,7 +138,7 @@
         });
 
         // Handle form submit
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const username = document.getElementById('username').value.trim();
@@ -211,4 +187,5 @@
         });
     </script>
 </body>
+
 </html>
