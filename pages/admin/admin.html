@@ -1,46 +1,53 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理画面 - Makase-supa</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
         .sidebar {
             min-height: calc(100vh - 56px);
             background: #2c3e50;
             color: white;
         }
+
         .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             padding: 12px 20px;
             border-radius: 5px;
             margin: 5px 10px;
             transition: all 0.3s;
         }
+
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
         }
+
         .stat-card {
             border-left: 4px solid;
             transition: transform 0.3s;
         }
+
         .stat-card:hover {
             transform: translateY(-5px);
         }
+
         .admin-content {
             min-height: calc(100vh - 56px);
         }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <div id="header"></div>
@@ -71,7 +78,7 @@
                             <i class="fas fa-tags"></i> カテゴリー管理
                         </a>
                         <hr class="text-white">
-                        <a class="nav-link" href="/index.html">
+                        <a class="nav-link" href="../../index.html">
                             <i class="fas fa-home"></i> サイトに戻る
                         </a>
                     </nav>
@@ -170,8 +177,8 @@
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="productSearch" 
-                                               placeholder="商品名で検索...">
+                                        <input type="text" class="form-control" id="productSearch"
+                                            placeholder="商品名で検索...">
                                     </div>
                                     <div class="col-md-3">
                                         <select class="form-select" id="productCategory">
@@ -242,7 +249,7 @@
                     <!-- Users Section -->
                     <div id="users" class="admin-section d-none">
                         <h2 class="mb-4"><i class="fas fa-users"></i> ユーザー管理</h2>
-                        
+
                         <div class="card">
                             <div class="card-body">
                                 <div class="alert alert-info">
@@ -279,17 +286,17 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Core Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
-    
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+
     <!-- Components -->
-    <script src="js/components/header.js"></script>
-    <script src="js/components/footer.js"></script>
-    
+    <script src="../../assets/js/components/header.js"></script>
+    <script src="../../assets/js/components/footer.js"></script>
+
     <!-- Page Script -->
     <script>
         // Check admin access
@@ -302,7 +309,7 @@
             if (!Auth.isAdmin()) {
                 Utils.showAlert('管理者権限が必要です', 'danger');
                 setTimeout(() => {
-                    window.location.href = '/index.html';
+                    window.location.href = REDIRECTS.HOME;
                 }, 2000);
                 return;
             }
@@ -332,7 +339,7 @@
             event.target.classList.add('active');
 
             // Load section data
-            switch(sectionId) {
+            switch (sectionId) {
                 case 'products':
                     loadProducts();
                     loadCategoriesForFilter();
@@ -370,7 +377,7 @@
         // Load recent orders
         async function loadRecentOrders() {
             const container = document.getElementById('recentOrders');
-            
+
             container.innerHTML = `
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
@@ -458,7 +465,7 @@
         // Load all orders
         async function loadAllOrders() {
             const container = document.getElementById('ordersTable');
-            
+
             container.innerHTML = `
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
@@ -537,4 +544,5 @@
         }
     </script>
 </body>
+
 </html>

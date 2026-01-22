@@ -83,7 +83,20 @@ const ORDER_STATUS = {
     CANCELLED: 'キャンセル'
 };
 
+const REDIRECTS = {
+    LOGIN: '/pages/auth/login.html',
+    HOME: '/pages/user/index.html',
+    PROFILE: '/pages/user/profile.html',
+    PRODUCTS: '/pages/user/products.html',
+    PRODUCT_DETAIL: '/pages/user/product-detail.html',
+    CART: '/pages/user/cart.html',
+    ORDERS: '/pages/user/orders.html',
+    ORDER_DETAIL: "/pages/user/order-detail.html",
+    ADMIN: "/pages/admin/dashboard.html",
+    CHECKOUT: '/pages/user/checkout.html',
+
+};
 // Export
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { API_CONFIG, APP_CONFIG, STORAGE_KEYS, PAYMENT_METHODS, ORDER_STATUS };
+    module.exports = { API_CONFIG, APP_CONFIG, STORAGE_KEYS, PAYMENT_METHODS, ORDER_STATUS, REDIRECTS };
 }

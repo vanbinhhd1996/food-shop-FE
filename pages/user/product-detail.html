@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品詳細 - Makase-supa</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../../assets/css/style.css" rel="stylesheet">
 </head>
+
 <body>
     <!-- Header -->
     <div id="header"></div>
@@ -22,8 +24,8 @@
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/index.html">ホーム</a></li>
-                    <li class="breadcrumb-item"><a href="/products.html">商品一覧</a></li>
+                    <li class="breadcrumb-item"><a href="/pages/user/index.html">ホーム</a></li>
+                    <li class="breadcrumb-item"><a href="/pages/user/products.html">商品一覧</a></li>
                     <li class="breadcrumb-item active" id="breadcrumbProduct">...</li>
                 </ol>
             </nav>
@@ -41,7 +43,7 @@
             <!-- Reviews Section -->
             <div id="reviewsSection" class="mt-5 d-none">
                 <h3 class="mb-4"><i class="fas fa-star"></i> レビュー</h3>
-                
+
                 <!-- Add Review (for logged-in users) -->
                 <div id="addReviewSection" class="mb-4"></div>
 
@@ -56,17 +58,17 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Core Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
-    
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+
     <!-- Components -->
-    <script src="js/components/header.js"></script>
-    <script src="js/components/footer.js"></script>
-    
+    <script src="../../assets/js/components/header.js"></script>
+    <script src="../../assets/js/components/footer.js"></script>
+
     <!-- Page Script -->
     <script>
         let currentProduct = null;
@@ -74,9 +76,9 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             const productId = Utils.getQueryParam('id');
-            
+
             if (!productId) {
-                window.location.href = '/products.html';
+                window.location.href = REDIRECTS.PRODUCTS;
                 return;
             }
 
@@ -88,7 +90,7 @@
         async function loadProductDetail(productId) {
             try {
                 const response = await API.getProductById(productId);
-                
+
                 if (response.success && response.data) {
                     currentProduct = response.data;
                     displayProductDetail(currentProduct);
@@ -97,7 +99,7 @@
                         <div class="text-center py-5">
                             <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
                             <p class="text-danger">商品が見つかりません</p>
-                            <a href="/products.html" class="btn btn-primary">商品一覧に戻る</a>
+                            <a href="${REDIRECTS.PRODUCTS}" class="btn btn-primary">商品一覧に戻る</a>
                         </div>
                     `;
                 }
@@ -148,21 +150,21 @@
 
                             <!-- Stock -->
                             <div class="mb-3">
-                                ${product.stockQuantity > 0 
-                                    ? `<span class="badge bg-success fs-6">
+                                ${product.stockQuantity > 0
+                    ? `<span class="badge bg-success fs-6">
                                         <i class="fas fa-check-circle"></i> 在庫あり (${product.stockQuantity}個)
                                        </span>`
-                                    : `<span class="badge bg-danger fs-6">
+                    : `<span class="badge bg-danger fs-6">
                                         <i class="fas fa-times-circle"></i> 在庫切れ
                                        </span>`
-                                }
+                }
                             </div>
 
                             <!-- Category -->
                             ${product.categoryName ? `
                                 <div class="mb-3">
                                     <strong>カテゴリー:</strong> 
-                                    <a href="/products.html?categoryId=${product.categoryId}" class="text-primary">
+                                    <a href="${REDIRECTS.PRODUCTS}?categoryId=${product.categoryId}" class="text-primary">
                                         ${product.categoryName}
                                     </a>
                                 </div>
@@ -214,7 +216,7 @@
             const input = document.getElementById('quantity');
             const newValue = parseInt(input.value) + delta;
             const max = parseInt(input.max);
-            
+
             if (newValue >= 1 && newValue <= max) {
                 input.value = newValue;
             }
@@ -225,13 +227,13 @@
             if (!Auth.isAuthenticated()) {
                 Utils.showAlert('ログインしてください', 'warning');
                 setTimeout(() => {
-                    window.location.href = '/login.html';
+                    window.location.href = REDIRECTS.LOGIN;
                 }, 1500);
                 return;
             }
 
             const quantity = parseInt(document.getElementById('quantity').value);
-            
+
             if (quantity < 1 || quantity > currentProduct.stockQuantity) {
                 Utils.showAlert('数量を確認してください', 'warning');
                 return;
@@ -240,10 +242,10 @@
             try {
                 const userId = Auth.getUserId();
                 const response = await API.addToCart(userId, currentProduct.id, quantity);
-                
+
                 if (response.success) {
                     Utils.showAlert(`${currentProduct.name} を ${quantity}個カートに追加しました`, 'success');
-                    
+
                     if (response.data && response.data.totalItems) {
                         Utils.updateCartCount(response.data.totalItems);
                     } else {
@@ -265,15 +267,15 @@
         async function loadReviews(productId) {
             try {
                 const response = await API.getProductReviews(productId);
-                
+
                 if (response.success && response.data) {
                     const reviews = Array.isArray(response.data) ? response.data : response.data.content || [];
                     displayReviews(reviews);
-                    
+
                     if (Auth.isAuthenticated()) {
                         displayAddReviewForm();
                     }
-                    
+
                     document.getElementById('reviewsSection').classList.remove('d-none');
                 }
             } catch (error) {
@@ -284,7 +286,7 @@
         // Display reviews
         function displayReviews(reviews) {
             const container = document.getElementById('reviewsList');
-            
+
             if (!reviews || reviews.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-4 text-muted">
@@ -379,10 +381,10 @@
 
                 if (response.success) {
                     Utils.showAlert('レビューを投稿しました', 'success');
-                    
+
                     // Reload reviews
                     loadReviews(currentProduct.id);
-                    
+
                     // Reset form
                     document.getElementById('reviewForm').reset();
                 } else {
@@ -395,4 +397,5 @@
         }
     </script>
 </body>
+
 </html>

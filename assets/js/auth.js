@@ -98,7 +98,8 @@ const Auth = {
      */
     requireAuth() {
         if (!this.isAuthenticated()) {
-            window.location.href = '/login.html';
+            window.location.href = REDIRECTS.LOGIN;
+
             return false;
         }
         return true;
@@ -109,7 +110,7 @@ const Auth = {
      */
     redirectIfAuthenticated() {
         if (this.isAuthenticated()) {
-            window.location.href = '/index.html';
+            window.location.href = REDIRECTS.HOME;
             return true;
         }
         return false;

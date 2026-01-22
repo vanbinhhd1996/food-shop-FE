@@ -11,7 +11,7 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../../../../assets/css/style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -30,10 +30,10 @@
                         厳選された野菜、果物、お肉、魚介類など<br>
                         品質にこだわった食材を取り揃えています
                     </p>
-                    <a href="/products.html" class="btn btn-light btn-lg me-2">
+                    <a href="/pages/user/products.html" class="btn btn-light btn-lg me-2">
                         <i class="fas fa-shopping-bag"></i> 商品を見る
                     </a>
-                    <a id="isRegister" href="/register.html" class="btn btn-outline-light btn-lg">
+                    <a id="isRegister" href="../auth/register.html" class="btn btn-outline-light btn-lg">
                         <i class="fas fa-user-plus"></i> 新規登録
                     </a>
                 </div>
@@ -101,7 +101,7 @@
                 </div>
             </div>
             <div class="text-center mt-4">
-                <a href="/products.html" class="btn btn-primary btn-lg">
+                <a href="/pages/user/products.html" class="btn btn-primary btn-lg">
                     <i class="fas fa-th"></i> すべての商品を見る
                 </a>
             </div>
@@ -131,14 +131,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
 
     <!-- Components -->
-    <script src="js/components/header.js"></script>
-    <script src="js/components/footer.js"></script>
+    <script src="../../assets/js/components/header.js"></script>
+    <script src="../../assets/js/components/footer.js"></script>
 
     <!-- Page Script -->
     <script>
@@ -191,7 +191,7 @@
             container.innerHTML = products.map(product => `
                 <div class="col-md-6 col-lg-3">
                     <div class="product-card">
-                        <a href="/product-detail.html?id=${product.id}">
+                        <a href="${REDIRECTS.PRODUCT_DETAIL}?id=${product.id}">
                             <img src="${Utils.getImageUrl(product.imageUrl)}" 
                                  alt="${product.name}" 
                                  class="product-image"
@@ -199,7 +199,7 @@
                         </a>
                         <div class="product-body">
                             <h5 class="product-name">
-                                <a href="/product-detail.html?id=${product.id}">
+                                <a href="${REDIRECTS.PRODUCT_DETAIL}?id=${product.id}">
                                     ${product.name}
                                 </a>
                             </h5>
@@ -257,7 +257,7 @@
                 const iconClass = categoryIcons[category.name] || 'fa-shopping-basket';
                 return `
                     <div class="col-md-4 col-lg-2">
-                        <a href="/products.html?categoryId=${category.id}" class="text-decoration-none">
+                        <a href="${REDIRECTS.PRODUCTS}?categoryId=${category.id}" class="text-decoration-none">
                             <div class="category-card">
                                 <div class="category-icon">
                                     <i class="fas ${iconClass}"></i>
@@ -275,7 +275,7 @@
             if (!Auth.isAuthenticated()) {
                 Utils.showAlert('ログインしてください', 'warning');
                 setTimeout(() => {
-                    window.location.href = '/login.html';
+                    window.location.href = REDIRECTS.LOGIN;
                 }, 1500);
                 return;
             }

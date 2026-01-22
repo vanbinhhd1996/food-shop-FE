@@ -29,10 +29,10 @@ const Footer = {
                         <div class="col-md-2 mb-4">
                             <h5>クイックリンク</h5>
                             <ul class="list-unstyled">
-                                <li><a href="/index.html">ホーム</a></li>
-                                <li><a href="/products.html">商品一覧</a></li>
-                                <li><a href="/cart.html">カート</a></li>
-                                <li><a href="/orders.html">注文履歴</a></li>
+                                <li><a href=${REDIRECTS.HOME}>ホーム</a></li>
+                                <li><a href=${REDIRECTS.PRODUCTS}>商品一覧</a></li>
+                                <li><a href=${REDIRECTS.CART}>カート</a></li>
+                                <li><a href=${REDIRECTS.ORDERS}>注文履歴</a></li>
                             </ul>
                         </div>
 
@@ -40,11 +40,11 @@ const Footer = {
                         <div class="col-md-3 mb-4">
                             <h5>商品カテゴリー</h5>
                             <ul class="list-unstyled">
-                                <li><a href="/products.html?category=野菜">野菜</a></li>
-                                <li><a href="/products.html?category=果物">果物</a></li>
-                                <li><a href="/products.html?category=肉">お肉</a></li>
-                                <li><a href="/products.html?category=魚">魚介類</a></li>
-                                <li><a href="/products.html?category=乳製品">乳製品</a></li>
+                                <li><a href="${REDIRECTS.PRODUCTS}?category=野菜">野菜</a></li>
+                                <li><a href="${REDIRECTS.PRODUCTS}?category=果物">果物</a></li>
+                                <li><a href="${REDIRECTS.PRODUCTS}?category=肉">お肉</a></li>
+                                <li><a href="${REDIRECTS.PRODUCTS}?category=魚">魚介類</a></li>
+                                <li><a href="${REDIRECTS.PRODUCTS}?category=乳製品">乳製品</a></li>
                             </ul>
                         </div>
 

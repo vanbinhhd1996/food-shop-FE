@@ -11,7 +11,7 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../../assets/css/style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -26,8 +26,8 @@
                 <h1><i class="fas fa-credit-card"></i> 注文確認</h1>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/index.html">ホーム</a></li>
-                        <li class="breadcrumb-item"><a href="/cart.html">カート</a></li>
+                        <li class="breadcrumb-item"><a href="/pages/user/index.html">ホーム</a></li>
+                        <li class="breadcrumb-item"><a href="/pages/user/cart.html">カート</a></li>
                         <li class="breadcrumb-item active">注文確認</li>
                     </ol>
                 </nav>
@@ -169,7 +169,7 @@
                             <button class="btn btn-primary btn-lg" id="placeOrderBtn" onclick="placeOrder()">
                                 <i class="fas fa-check-circle"></i> 注文を確定する
                             </button>
-                            <a href="/cart.html" class="btn btn-outline-secondary">
+                            <a href="/pages/user/cart.html" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left"></i> カートに戻る
                             </a>
                         </div>
@@ -186,14 +186,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
 
     <!-- Components -->
-    <script src="js/components/header.js"></script>
-    <script src="js/components/footer.js"></script>
+    <script src="../../assets/js/components/header.js"></script>
+    <script src="../../assets/js/components/footer.js"></script>
 
     <!-- Page Script -->
     <script>
@@ -223,7 +223,7 @@
                     if (!cartData.items || cartData.items.length === 0) {
                         Utils.showAlert('カートが空です', 'warning');
                         setTimeout(() => {
-                            window.location.href = '/cart.html';
+                            window.location.href = REDIRECTS.CART;
                         }, 1500);
                         return;
                     }
@@ -232,7 +232,7 @@
                 } else {
                     Utils.showAlert('カート情報の取得に失敗しました', 'danger');
                     setTimeout(() => {
-                        window.location.href = '/cart.html';
+                        window.location.href = REDIRECTS.CART;
                     }, 1500);
                 }
             } catch (error) {
@@ -333,7 +333,7 @@
 
                     // Redirect to order detail
                     setTimeout(() => {
-                        window.location.href = `/order-detail.html?id=${response.data.id}`;
+                        window.location.href = `${REDIRECTS.ORDER_DETAIL}?id=${response.data.id}`;
                     }, 1500);
                 } else {
                     Utils.showAlert(response.message || '注文に失敗しました', 'danger');
