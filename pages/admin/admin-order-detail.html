@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品編集 - Makase-supa Admin</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin.html">管理画面</a></li>
+                    <li class="breadcrumb-item"><a href="/admin.html#products">商品管理</a></li>
+                    <li class="breadcrumb-item active" id="breadcrumbTitle">商品追加</li>
+                </ol>
+            </nav>
+
+            <div class="row">
+                <!-- Form -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0" id="pageTitle">
+                                <i class="fas fa-plus-circle"></i> 商品を追加
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="productForm">
+                                <!-- Product Name -->
+                                <div class="mb-3">
+                                    <label for="productName" class="form-label">
+                                        商品名 <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="productName" required>
+                                </div>
+
+                                <!-- Category -->
+                                <div class="mb-3">
+                                    <label for="categoryId" class="form-label">
+                                        カテゴリー <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="categoryId" required>
+                                        <option value="">カテゴリーを選択</option>
+                                    </select>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">
+                                        商品説明
+                                    </label>
+                                    <textarea class="form-control" id="description" rows="4"></textarea>
+                                </div>
+
+                                <!-- Price -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="price" class="form-label">
+                                            価格 (¥) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="price" min="0" step="1" required>
+                                    </div>
+
+                                    <!-- Stock -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="stockQuantity" class="form-label">
+                                            在庫数 <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="stockQuantity" min="0" required>
+                                    </div>
+                                </div>
+
+                                <!-- SKU -->
+                                <div class="mb-3">
+                                    <label for="sku" class="form-label">
+                                        商品コード (SKU)
+                                    </label>
+                                    <input type="text" class="form-control" id="sku" placeholder="例: PROD-001">
+                                </div>
+
+                                <!-- Image URL -->
+                                <div class="mb-3">
+                                    <label for="imageUrl" class="form-label">
+                                        画像URL
+                                    </label>
+                                    <input type="text" class="form-control" id="imageUrl"
+                                        placeholder="/images/product.jpg">
+                                    <small class="text-muted">
+                                        または画像をアップロード:
+                                    </small>
+                                    <input type="file" class="form-control mt-2" id="imageFile" accept="image/*"
+                                        onchange="handleImageUpload()">
+                                </div>
+
+                                <!-- Image Preview -->
+                                <div class="mb-3" id="imagePreviewContainer" style="display: none;">
+                                    <label class="form-label">プレビュー:</label>
+                                    <div>
+                                        <img id="imagePreview" src="" alt="Preview" class="img-thumbnail"
+                                            style="max-width: 300px;">
+                                    </div>
+                                </div>
+
+                                <!-- Active Status -->
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                        <label class="form-check-label" for="isActive">
+                                            有効にする
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary" id="saveBtn">
+                                        <i class="fas fa-save"></i> 保存
+                                    </button>
+                                    <a href="/admin.html#products" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> キャンセル
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Sidebar -->
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> ヒント</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0">
+                                <li>商品名は明確で分かりやすくしましょう</li>
+                                <li>価格は税込み価格を入力してください</li>
+                                <li>在庫数は正確に管理しましょう</li>
+                                <li>商品コードは一意である必要があります</li>
+                                <li>高品質な商品画像を使用してください</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> 注意</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">
+                                <strong>現在の制限:</strong><br>
+                                画像アップロード機能は実装されていますが、
+                                Backend APIが対応している必要があります。
+                                <br><br>
+                                商品の追加・編集には管理者APIエンドポイントが必要です:
+                                <br>
+                                <code>POST /api/admin/products</code><br>
+                                <code>PUT /api/admin/products/{'{id}'}</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+
+    <!-- Page Script -->
+    <script>
+        let isEditMode = false;
+        let currentProductId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check admin
+            if (!Auth.requireAuth() || !Auth.isAdmin()) {
+                Utils.showAlert('管理者権限が必要です', 'danger');
+                setTimeout(() => window.location.href = '/admin.html', 2000);
+                return;
+            }
+
+            // Load categories
+            loadCategories();
+
+            // Check if edit mode
+            const productId = Utils.getQueryParam('id');
+            if (productId) {
+                isEditMode = true;
+                currentProductId = productId;
+                loadProduct(productId);
+
+                document.getElementById('pageTitle').innerHTML =
+                    '<i class="fas fa-edit"></i> 商品を編集';
+                document.getElementById('breadcrumbTitle').textContent = '商品編集';
+            }
+        });
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const response = await API.getCategories();
+
+                if (response.success && response.data) {
+                    const select = document.getElementById('categoryId');
+                    select.innerHTML = '<option value="">カテゴリーを選択</option>' +
+                        response.data.map(c =>
+                            `<option value="${c.id}">${c.name}</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        // Load product (for edit mode)
+        async function loadProduct(productId) {
+            try {
+                const response = await API.getProductById(productId);
+
+                if (response.success && response.data) {
+                    const product = response.data;
+
+                    document.getElementById('productName').value = product.name || '';
+                    document.getElementById('categoryId').value = product.categoryId || '';
+                    document.getElementById('description').value = product.description || '';
+                    document.getElementById('price').value = product.price || '';
+                    document.getElementById('stockQuantity').value = product.stockQuantity || '';
+                    document.getElementById('sku').value = product.sku || '';
+                    document.getElementById('imageUrl').value = product.imageUrl || '';
+                    document.getElementById('isActive').checked = product.isActive !== false;
+
+                    // Show image preview
+                    if (product.imageUrl) {
+                        showImagePreview(Utils.getImageUrl(product.imageUrl));
+                    }
+                } else {
+                    Utils.showAlert('商品が見つかりません', 'danger');
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                Utils.handleApiError(error);
+            }
+        }
+
+        // Handle image upload
+        async function handleImageUpload() {
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                Utils.showAlert('画像ファイルを選択してください', 'warning');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                Utils.showAlert('ファイルサイズは5MB以下にしてください', 'warning');
+                return;
+            }
+
+            try {
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    showImagePreview(e.target.result);
+                };
+                reader.readAsDataURL(file);
+
+                // Upload to server
+                Utils.showAlert('画像をアップロード中...', 'info');
+                const response = await API.uploadFile(file);
+
+                if (response.success && response.data) {
+                    document.getElementById('imageUrl').value = response.data.url;
+                    Utils.showAlert('画像をアップロードしました', 'success');
+                } else {
+                    Utils.showAlert('画像のアップロードに失敗しました', 'danger');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                Utils.showAlert('画像のアップロードに失敗しました', 'danger');
+            }
+        }
+
+        // Show image preview
+        function showImagePreview(url) {
+            const preview = document.getElementById('imagePreview');
+            const container = document.getElementById('imagePreviewContainer');
+
+            preview.src = url;
+            container.style.display = 'block';
+        }
+
+        // Handle form submit
+        document.getElementById('productForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const productData = {
+                name: document.getElementById('productName').value.trim(),
+                categoryId: parseInt(document.getElementById('categoryId').value),
+                description: document.getElementById('description').value.trim(),
+                price: parseFloat(document.getElementById('price').value),
+                stockQuantity: parseInt(document.getElementById('stockQuantity').value),
+                sku: document.getElementById('sku').value.trim(),
+                imageUrl: document.getElementById('imageUrl').value.trim(),
+                isActive: document.getElementById('isActive').checked
+            };
+
+            // Validation
+            if (!productData.name || !productData.categoryId || !productData.price || productData.stockQuantity < 0) {
+                Utils.showAlert('必須項目を入力してください', 'warning');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+
+            try {
+                // Note: Backend needs admin endpoints
+                Utils.showAlert(
+                    '商品の保存機能は現在開発中です。\n' +
+                    'Backend APIに以下のエンドポイントが必要です:\n' +
+                    (isEditMode
+                        ? `PUT /api/admin/products/${currentProductId}`
+                        : 'POST /api/admin/products'),
+                    'info'
+                );
+
+                console.log('Product data:', productData);
+                console.log('Mode:', isEditMode ? 'Edit' : 'Create');
+
+                // Simulate success
+                setTimeout(() => {
+                    Utils.showAlert('商品を保存しました（デモ）', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/admin.html#products';
+                    }, 1500);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error saving product:', error);
+                Utils.handleApiError(error);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> 保存';
+            }
+        });
+    </script>
+</body>
+
+</html>

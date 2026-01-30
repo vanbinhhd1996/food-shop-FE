@@ -156,11 +156,20 @@ const API = {
     /**
      * Tạo đơn hàng mới
      */
+
     async createOrder(userId, orderData) {
         return this.request(`${API_CONFIG.ENDPOINTS.ORDERS}?userId=${userId}`, {
             method: 'POST',
             body: JSON.stringify(orderData)
         });
+    },
+
+    /**
+     * Lấy toàn bộ đơn hàng của
+     */
+
+    async getAllOrders(page = 0, size = 10) {
+        return this.request(`${API_CONFIG.ENDPOINTS.ORDERS}/all?page=${page}&size=${size}`);
     },
 
     /**

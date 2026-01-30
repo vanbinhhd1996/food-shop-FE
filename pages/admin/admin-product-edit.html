@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文管理 - Makase-supa Admin</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin.html">管理画面</a></li>
+                    <li class="breadcrumb-item"><a href="/admin.html#orders">注文管理</a></li>
+                    <li class="breadcrumb-item active">注文詳細</li>
+                </ol>
+            </nav>
+
+            <!-- Order Detail -->
+            <div id="orderDetail">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">読み込み中...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Update Status Modal -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> ステータスを変更
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="statusForm">
+                        <div class="mb-3">
+                            <label class="form-label">新しいステータス</label>
+                            <select class="form-select" id="newStatus" required>
+                                <option value="PENDING">注文確認中</option>
+                                <option value="CONFIRMED">確認済み</option>
+                                <option value="PROCESSING">処理中</option>
+                                <option value="SHIPPED">発送済み</option>
+                                <option value="DELIVERED">配達完了</option>
+                                <option value="CANCELLED">キャンセル</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">メモ（オプション）</label>
+                            <textarea class="form-control" id="statusNote" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        キャンセル
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateOrderStatus()">
+                        <i class="fas fa-save"></i> 更新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+
+    <!-- Components -->
+    <script src="js/components/header.js"></script>
+    <script src="js/components/footer.js"></script>
+
+    <!-- Page Script -->
+    <script>
+        let currentOrder = null;
+        let statusModal = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check admin
+            if (!Auth.requireAuth() || !Auth.isAdmin()) {
+                Utils.showAlert('管理者権限が必要です', 'danger');
+                setTimeout(() => window.location.href = '/admin.html', 2000);
+                return;
+            }
+
+            // Initialize modal
+            statusModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+
+            const orderId = Utils.getQueryParam('id');
+            if (!orderId) {
+                window.location.href = '/admin.html#orders';
+                return;
+            }
+
+            loadOrderDetail(orderId);
+        });
+
+        // Load order detail
+        async function loadOrderDetail(orderId) {
+            try {
+                // Note: For admin, we might need special endpoint
+                // For now, using the regular endpoint (needs userId)
+                // In production, use: GET /api/admin/orders/{orderId}
+
+                const userId = Auth.getUserId();
+                const response = await API.getOrderById(userId, orderId);
+
+                if (response.success && response.data) {
+                    currentOrder = response.data;
+                    displayOrderDetail(currentOrder);
+                } else {
+                    displayError();
+                }
+            } catch (error) {
+                console.error('Error loading order:', error);
+                displayError();
+            }
+        }
+
+        // Display order detail
+        function displayOrderDetail(order) {
+            const container = document.getElementById('orderDetail');
+
+            container.innerHTML = `
+                <!-- Order Header -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-receipt"></i> ${order.orderNumber}
+                                </h3>
+                            </div>
+                            <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                                <button class="btn btn-light" onclick="openStatusModal()">
+                                    <i class="fas fa-edit"></i> ステータス変更
+                                </button>
+                                <button class="btn btn-outline-light" onclick="printOrder()">
+                                    <i class="fas fa-print"></i> 印刷
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>注文日時:</strong><br>
+                                ${Utils.formatDateTime(order.createdAt)}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>ステータス:</strong><br>
+                                <span class="badge ${Utils.getOrderStatusBadge(order.status)} fs-6">
+                                    ${Utils.getOrderStatusText(order.status)}
+                                </span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>支払い方法:</strong><br>
+                                ${Utils.getPaymentMethodText(order.paymentMethod)}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>支払い状態:</strong><br>
+                                <span class="badge ${order.paymentStatus === 'PAID' ? 'bg-success' : 'bg-warning'}">
+                                    ${order.paymentStatus === 'PAID' ? '支払済み' : '未払い'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Order Items -->
+                    <div class="col-lg-8 mb-4">
+                        <!-- Customer Info -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-user"></i> 顧客情報</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>お名前:</strong><br>
+                                        ${order.shippingName}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>電話番号:</strong><br>
+                                        <a href="tel:${order.shippingPhone}">${order.shippingPhone}</a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>配送先:</strong><br>
+                                        ${order.shippingAddress}
+                                    </div>
+                                </div>
+                                ${order.note ? `
+                                    <div class="mt-3 p-2 bg-light rounded">
+                                        <strong>備考:</strong><br>
+                                        ${order.note}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-box"></i> 注文商品</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>商品</th>
+                                                <th class="text-end">単価</th>
+                                                <th class="text-center">数量</th>
+                                                <th class="text-end">小計</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${order.orderItems ? order.orderItems.map(item => `
+                                                <tr>
+                                                    <td>
+                                                        <a href="/product-detail.html?id=${item.productId}">
+                                                            ${item.productName}
+                                                        </a>
+                                                    </td>
+                                                    <td class="text-end">${Utils.formatPrice(item.price)}</td>
+                                                    <td class="text-center">${item.quantity}</td>
+                                                    <td class="text-end fw-bold">${Utils.formatPrice(item.subtotal)}</td>
+                                                </tr>
+                                            `).join('') : ''}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="3" class="text-end"><strong>小計:</strong></td>
+                                                <td class="text-end fw-bold">${Utils.formatPrice(order.totalAmount)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="text-end"><strong>配送料:</strong></td>
+                                                <td class="text-end">${Utils.formatPrice(order.shippingFee || 0)}</td>
+                                            </tr>
+                                            ${order.discountAmount > 0 ? `
+                                                <tr class="text-success">
+                                                    <td colspan="3" class="text-end"><strong>割引:</strong></td>
+                                                    <td class="text-end">-${Utils.formatPrice(order.discountAmount)}</td>
+                                                </tr>
+                                            ` : ''}
+                                            <tr class="table-primary">
+                                                <td colspan="3" class="text-end"><h5 class="mb-0">合計:</h5></td>
+                                                <td class="text-end"><h5 class="mb-0 text-primary">${Utils.formatPrice(order.finalAmount)}</h5></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-4">
+                        <!-- Quick Actions -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-bolt"></i> クイックアクション</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success" onclick="markAsPaid()">
+                                        <i class="fas fa-check-circle"></i> 支払済みにする
+                                    </button>
+                                    <button class="btn btn-info" onclick="markAsShipped()">
+                                        <i class="fas fa-truck"></i> 発送済みにする
+                                    </button>
+                                    <button class="btn btn-primary" onclick="markAsDelivered()">
+                                        <i class="fas fa-box-open"></i> 配達完了にする
+                                    </button>
+                                    <button class="btn btn-danger" onclick="cancelOrder()">
+                                        <i class="fas fa-times-circle"></i> キャンセル
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status History -->
+                        ${order.statusHistory && order.statusHistory.length > 0 ? `
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-history"></i> ステータス履歴</h5>
+                                </div>
+                                <div class="card-body">
+                                    ${order.statusHistory.map(history => `
+                                        <div class="mb-3 pb-3 border-bottom">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="badge ${Utils.getOrderStatusBadge(history.status)}">
+                                                    ${Utils.getOrderStatusText(history.status)}
+                                                </span>
+                                                <small class="text-muted">
+                                                    ${Utils.formatDateTime(history.changedAt)}
+                                                </small>
+                                            </div>
+                                            ${history.note ? `
+                                                <small class="text-muted">${history.note}</small>
+                                            ` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display error
+        function displayError() {
+            document.getElementById('orderDetail').innerHTML = `
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-5x text-danger mb-4"></i>
+                        <h3>注文が見つかりません</h3>
+                        <p class="text-muted">注文情報の取得に失敗しました</p>
+                        <a href="/admin.html#orders" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> 注文一覧に戻る
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Open status modal
+        function openStatusModal() {
+            document.getElementById('newStatus').value = currentOrder.status;
+            document.getElementById('statusNote').value = '';
+            statusModal.show();
+        }
+
+        // Update order status
+        function updateOrderStatus() {
+            const newStatus = document.getElementById('newStatus').value;
+            const note = document.getElementById('statusNote').value.trim();
+
+            if (!newStatus) {
+                Utils.showAlert('ステータスを選択してください', 'warning');
+                return;
+            }
+
+            Utils.showAlert(
+                'ステータス更新機能は現在開発中です。\n' +
+                'Backend APIに以下のエンドポイントが必要です:\n' +
+                `PUT /api/admin/orders/${currentOrder.id}/status`,
+                'info'
+            );
+
+            console.log('Update order status:', {
+                orderId: currentOrder.id,
+                newStatus: newStatus,
+                note: note
+            });
+
+            statusModal.hide();
+        }
+
+        // Quick actions
+        function markAsPaid() {
+            Utils.showAlert('支払い更新機能は開発中です', 'info');
+        }
+
+        function markAsShipped() {
+            if (confirm('この注文を発送済みにしますか？')) {
+                Utils.showAlert('発送済み更新機能は開発中です', 'info');
+            }
+        }
+
+        function markAsDelivered() {
+            if (confirm('この注文を配達完了にしますか？')) {
+                Utils.showAlert('配達完了更新機能は開発中です', 'info');
+            }
+        }
+
+        function cancelOrder() {
+            if (confirm('この注文をキャンセルしますか？この操作は取り消せません。')) {
+                Utils.showAlert('キャンセル機能は開発中です', 'info');
+            }
+        }
+
+        // Print order
+        function printOrder() {
+            window.print();
+        }
+    </script>
+</body>
+
+</html>

@@ -78,7 +78,7 @@
                             <i class="fas fa-tags"></i> カテゴリー管理
                         </a>
                         <hr class="text-white">
-                        <a class="nav-link" href="../../index.html">
+                        <a class="nav-link" href="/index.html">
                             <i class="fas fa-home"></i> サイトに戻る
                         </a>
                     </nav>
@@ -167,9 +167,9 @@
                     <div id="products" class="admin-section d-none">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2><i class="fas fa-box"></i> 商品管理</h2>
-                            <button class="btn btn-primary" onclick="alert('商品追加機能は開発中です')">
+                            <a href="/admin-product-edit.html" class="btn btn-primary">
                                 <i class="fas fa-plus"></i> 商品を追加
-                            </button>
+                            </a>
                         </div>
 
                         <!-- Search & Filter -->
@@ -288,6 +288,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core Scripts -->
+    <!-- Core Scripts -->
     <script src="../../assets/js/api.js"></script>
     <script src="../../assets/js/auth.js"></script>
     <script src="../../assets/js/config.js"></script>
@@ -301,21 +302,21 @@
     <script>
         // Check admin access
         document.addEventListener('DOMContentLoaded', () => {
-            if (!Auth.requireAuth()) {
-                return;
-            }
+            // if (!Auth.requireAuth()) {
+            //     return;
+            // }
 
-            // // Check if user is admin
+            // Check if user is admin
             // if (!Auth.isAdmin()) {
             //     Utils.showAlert('管理者権限が必要です', 'danger');
             //     setTimeout(() => {
-            //         window.location.href = REDIRECTS.HOME;
+            //         window.location.href = REDIRECTS.LOGIN;
             //     }, 2000);
             //     return;
             // }
 
-            // Display admin name
-            document.getElementById('adminName').textContent = Auth.getFullName() || '管理者';
+            // // Display admin name
+            // document.getElementById('adminName').textContent = Auth.getFullName() || '管理者';
 
             // Load dashboard data
             loadDashboardStats();
@@ -363,9 +364,6 @@
                     document.getElementById('totalProducts').textContent = products.length;
                 }
 
-                // Load all orders (without userId for admin)
-                // Note: Backend needs admin endpoint to get all orders
-                // For now, we'll show a placeholder
                 document.getElementById('totalOrders').textContent = '-';
                 document.getElementById('totalRevenue').textContent = '-';
 
@@ -447,10 +445,10 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary" onclick="alert('編集機能は開発中です')">
+                                        <a href="/admin-product-edit.html?id=${p.id}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" onclick="alert('削除機能は開発中です')">
+                                        </a>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
@@ -460,6 +458,13 @@
                     </table>
                 </div>
             `;
+        }
+
+        // Delete product
+        function deleteProduct(productId) {
+            if (confirm('この商品を削除しますか？')) {
+                Utils.showAlert('削除機能は開発中です', 'info');
+            }
         }
 
         // Load all orders
