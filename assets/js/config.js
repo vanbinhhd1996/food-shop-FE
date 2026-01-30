@@ -85,6 +85,7 @@ const ORDER_STATUS = {
 
 const REDIRECTS = {
     LOGIN: '/pages/auth/login.html',
+    REGISTER: '/pages/auth/register.html',
     HOME: '/pages/user/index.html',
     PROFILE: '/pages/user/profile.html',
     PRODUCTS: '/pages/user/products.html',
