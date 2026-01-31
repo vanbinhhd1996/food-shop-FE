@@ -93,8 +93,11 @@ const REDIRECTS = {
     CART: '/pages/user/cart.html',
     ORDERS: '/pages/user/orders.html',
     ORDER_DETAIL: "/pages/user/order-detail.html",
-    ADMIN: "/pages/admin/dashboard.html",
     CHECKOUT: '/pages/user/checkout.html',
+    ADMIN: "/pages/admin/admin.html",
+    ADMIN_ORDER_DETAIL: "/pages/admin/admin-order-detail.html",
+    ADMIN_PRODUCT_EDIT: "/pages/admin/admin-product-edit.html"
+
 
 };
 // Export

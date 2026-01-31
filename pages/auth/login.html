@@ -169,10 +169,20 @@
                     // Show success message
                     Utils.showAlert('ログインに成功しました！', 'success');
 
-                    // Redirect to home after 1 second
-                    setTimeout(() => {
-                        window.location.href = REDIRECTS.HOME;
-                    }, 1000);
+                    if (Auth.isAdmin()) {
+                        Utils.showAlert('管理者としてログインしました。管理画面にリダイレクトします...', 'info');
+                        // Redirect to admin dashboard after 1 second
+                        setTimeout(() => {
+                            window.location.href = REDIRECTS.ADMIN;
+                        }, 1000);
+                        return;
+                    } else {
+                        Utils.showAlert('一般ユーザーとしてログインしました。ホームページにリダイレクトします...', 'info');
+                        // Redirect to home after 1 second
+                        setTimeout(() => {
+                            window.location.href = REDIRECTS.HOME;
+                        }, 1000);
+                    }
                 } else {
                     Utils.showAlert(response.message || 'ログインに失敗しました', 'danger');
                     loginBtn.disabled = false;
